@@ -18,8 +18,7 @@ TripleTriad::Board::~Board() {
 }
 
 void TripleTriad::Board::_checkDefault(int position) {
-    for (auto &i : _pos[position]->adjacent()) {
-        if (i->isEmpty()) continue;
+    for (auto &i : _getCombo(position)) {
         auto other = i->getCard();
         if (*_pos[position] > *i) other->flip(_pos[position]->card());
     }
@@ -36,6 +35,36 @@ void TripleTriad::Board::_checkSame(int position) {
     }
 }
 
+void TripleTriad::Board::_checkPlus(int position) {
+    auto pluses = _getPlus(position);
+
+    if (pluses.size() < 2) return;
+
+    for (auto const &i : pluses) {
+        auto other = i->getCard();
+        other->flip(_pos[position]->card());
+    }
+}
+
+void TripleTriad::Board::_checkCombo(int position, std::vector<Position *> const &flipped) {
+    std::queue<Position*> bfs_queue;
+    for (auto const &i : flipped) bfs_queue.push(i);
+    std::set<Position*> visited(flipped.begin(), flipped.end());
+    visited.emplace(_pos[position]);
+    while (!bfs_queue.empty() && visited.size() != 9) {
+        auto current = bfs_queue.front();
+        auto combos = _getCombo(current->getIdx());
+        bfs_queue.pop();
+        for (auto const &i : combos) {
+            if (visited.count(i)) continue;
+            visited.emplace(i);
+            bfs_queue.push(i);
+            i->getCard()->flip(current->card());
+        }
+    }
+
+}
+
 std::vector<TripleTriad::Position*> TripleTriad::Board::_getSame(int position) const {
     std::vector<TripleTriad::Position*> output;
     for (auto const &i : _pos[position]->adjacent()) {
@@ -43,18 +72,6 @@ std::vector<TripleTriad::Position*> TripleTriad::Board::_getSame(int position) c
         if (*_pos[position] == *i) output.emplace_back(i);
     }
     return output;
-}
-
-void TripleTriad::Board::_checkPlus(int position) {
-    auto pluses = _getPlus(position);
-
-    if (pluses.size() < 2) return;
-
-    for (auto const &i : pluses) {
-        if (i->isEmpty()) continue;
-        auto other = i->getCard();
-        other->flip(_pos[position]->card());
-    }
 }
 
 std::vector<TripleTriad::Position*> TripleTriad::Board::_getPlus(int position) const {
@@ -76,5 +93,15 @@ std::vector<TripleTriad::Position*> TripleTriad::Board::_getPlus(int position) c
     output.assign( set.begin(), set.end() );
     return output;
 }
+
+std::vector<TripleTriad::Position*> TripleTriad::Board::_getCombo(int position) const {
+    std::vector<TripleTriad::Position*> output;
+    for (auto const &i : _pos[position]->adjacent()) {
+        if (i->isEmpty()) continue;
+        if (*_pos[position] > *i) output.emplace_back(i);
+    }
+    return output;
+}
+
 
 

@@ -8,6 +8,7 @@
 #include<unordered_map>
 #include<functional>
 #include<set>
+#include<queue>
 
 enum Element { Fire, Ice, Water, Earth, Holy, Poison, Thunder, None };
 enum Rule { Same, SameWall, Plus, Elemental };

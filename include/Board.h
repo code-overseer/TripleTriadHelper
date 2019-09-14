@@ -17,9 +17,11 @@ namespace TripleTriad {
 
         std::vector<Position*> _getSame(int position) const;
         std::vector<Position*> _getPlus(int position) const;
+        std::vector<Position*> _getCombo(int position) const;
         void _checkDefault(int position);
         void _checkSame(int position);
         void _checkPlus(int position);
+        void _checkCombo(int position, std::vector<Position*> const &flipped);
     public:
         Board(Rules const &rules, Elements const &elements = Elements());
         void play(Card const &card, int pos);
