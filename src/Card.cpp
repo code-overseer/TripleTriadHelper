@@ -28,7 +28,7 @@ void TripleTriad::Card::checkElement(Element pos_element) {
     }
 }
 
-TripleTriad::Card::Card(char const *card_name, Team team) : team(team) {
+TripleTriad::Card::Card(char const *card_name, Team team) : team(team), _default(team) {
     _name.reserve(24);
     char e; bool found = false;
     while(_cardData.read_row(_name, _defaultNum[0], _defaultNum[1], _defaultNum[2], _defaultNum[3], e) && !found) {
@@ -38,6 +38,18 @@ TripleTriad::Card::Card(char const *card_name, Team team) : team(team) {
         found = true;
     }
     if (!found) throw std::runtime_error("Could not find card");
+}
+
+bool TripleTriad::Card::isWall() const {
+    if (_idx != 4) {
+        auto tmp = _idx / 3;
+        if (tmp == 2 && s() == 10) return true;
+        if (!tmp && n() == 10) return true;
+        tmp = _idx % 3;
+        if (tmp == 2 && e() == 10) return true;
+        if (!tmp && w() == 10) return true;
+    }
+    return false;
 }
 
 #define ASSIGN(OP) \

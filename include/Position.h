@@ -12,13 +12,14 @@ namespace TripleTriad {
         Position& operator=(Position &&other) noexcept;
         Position& operator=(Position const &other) = default;
         void place(Card const &card);
+        inline Card unplace() { _empty = true; _card.unplace(); return _card; }
         int flip(Team team);
         Card const* card() const;
-        inline Card unplace() { _empty = true; _card.place(-1); return _card; }
-        inline bool isEmpty() const { return _empty; }
-        inline int getIdx() const { return _index; }
         bool isWall() const;
-        inline Element element() { return _element; }
+        bool isWall(Card const &card) const;
+        inline bool isEmpty() const { return _empty; }
+        inline int idx() const { return _index; }
+        inline Element element() const { return _element; }
     private:
         Element _element = None;
         int _index = 0;

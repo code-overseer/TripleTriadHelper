@@ -13,6 +13,7 @@ namespace TripleTriad {
         int _idx = -1;
         Element _element = None;
         std::string _name;
+        Team _default = Blue;
         inline void reset() { memcpy(_effectiveNum, _defaultNum, 4 * sizeof(int)); }
     public:
         static float const northProb[10];
@@ -21,15 +22,15 @@ namespace TripleTriad {
         static float const westProb[10];
         static std::unordered_map<Element, float const> const elementProb;
         Team team = Blue;
-
         void checkElement(Element pos_element);
         inline void place(int i) { if (i < 9 && i >= 0) _idx = i; }
-        inline void unplace() { _idx = -1; }
+        inline void unplace() { _idx = -1; team = _default; }
         inline std::string const& name() const { return _name; }
         int const& n(bool def = false) const { return def ? _defaultNum[0] : _effectiveNum[0]; }
         int const& s(bool def = false) const { return def ? _defaultNum[1] : _effectiveNum[1]; }
         int const& e(bool def = false) const { return def ? _defaultNum[2] : _effectiveNum[2]; }
         int const& w(bool def = false) const { return def ? _defaultNum[3] : _effectiveNum[3]; }
+        bool isWall() const;
         Card() = default;
         Card(char const* card_name, Team team);
         Card(Card const &other) = default;
