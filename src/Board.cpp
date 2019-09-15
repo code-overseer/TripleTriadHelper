@@ -18,20 +18,21 @@ TripleTriad::Board::~Board() {
 }
 
 void TripleTriad::Board::_checkDefault(int position) {
+    auto const &played = *(_pos[position]->card());
     for (auto &i : _getCombo(position)) {
         auto other = i->getCard();
-        if (*_pos[position] > *i) other->flip(_pos[position]->card());
+        if (*_pos[position] > *i) other->flip(played);
     }
 }
 
 void TripleTriad::Board::_checkSame(int position) {
     auto sames = _getSame(position);
     if (sames.size() < 2 && !(_sameWall && sames.size() == 1 && _pos[position]->isWall())) return;
-
+    auto const &played = *(_pos[position]->card());
     for (auto const &i : sames) {
         if (i->isEmpty()) continue;
         auto other = i->getCard();
-        other->flip(_pos[position]->card());
+        other->flip(played);
     }
 }
 
@@ -39,10 +40,10 @@ void TripleTriad::Board::_checkPlus(int position) {
     auto pluses = _getPlus(position);
 
     if (pluses.size() < 2) return;
-
+    auto const &played = *(_pos[position]->card());
     for (auto const &i : pluses) {
         auto other = i->getCard();
-        other->flip(_pos[position]->card());
+        other->flip(played);
     }
 }
 
@@ -54,15 +55,15 @@ void TripleTriad::Board::_checkCombo(int position, std::vector<Position *> const
     while (!bfs_queue.empty() && visited.size() != 9) {
         auto current = bfs_queue.front();
         auto combos = _getCombo(current->getIdx());
+        auto const &played = *(current->card());
         bfs_queue.pop();
         for (auto const &i : combos) {
             if (visited.count(i)) continue;
             visited.emplace(i);
             bfs_queue.push(i);
-            i->getCard()->flip(current->card());
+            i->getCard()->flip(played);
         }
     }
-
 }
 
 std::vector<TripleTriad::Position*> TripleTriad::Board::_getSame(int position) const {
@@ -86,7 +87,10 @@ std::vector<TripleTriad::Position*> TripleTriad::Board::_getPlus(int position) c
         if (!total[i]) continue;
         for (int j = i + 1; j < 4; ++j) {
             if (!total[j]) continue;
-            if (total[i] == total[j]) set.emplace( adj[i], adj[j] );
+            if (total[i] == total[j]) {
+                set.emplace( adj[i] );
+                set.emplace( adj[j] );
+            }
         }
     }
     std::vector<TripleTriad::Position*> output;

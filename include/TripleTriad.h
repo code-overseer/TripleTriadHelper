@@ -9,8 +9,9 @@
 #include<functional>
 #include<set>
 #include<queue>
+#include<string>
 
-enum Element { Fire, Ice, Water, Earth, Holy, Poison, Thunder, None };
+enum Element { Fire, Ice, Water, Earth, Holy, Poison, Thunder, Wind, None };
 enum Rule { Same, SameWall, Plus, Elemental };
 enum Team { Blue, Red };
 typedef std::unordered_map<Team, int> Score;

@@ -11,3 +11,5 @@ add_executable(TripleTriad
         include/Board.h
         src/Board.cpp
         src/Card.cpp include/Position.h src/Position.cpp)
+
+add_definitions(-DCARD_DATA="${CMAKE_SOURCE_DIR}/Card.csv")
