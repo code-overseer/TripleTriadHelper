@@ -7,12 +7,11 @@ namespace TripleTriad {
     class Card;
     struct Position {
         Position() = default;
-        explicit Position(int i, Position** root, Element e = None);
+        explicit Position(int i, Position** root, Element e = None) : _index(i), element(e) {}
         Element element = None;
         void place(Card const &card);
         Card* getCard();
         Card const* card() const;
-        inline std::vector<Position*> const& adjacent() const { return _adjacent; }
         inline void unplace() { _empty = true; }
         inline bool isEmpty() const { return _empty; }
         inline int getIdx() const { return _index; }
@@ -21,7 +20,6 @@ namespace TripleTriad {
         Card _card;
         int _index = 0;
         bool _empty = true;
-        std::vector<Position*> _adjacent;
     };
 
 #define ASSIGN(OP) \

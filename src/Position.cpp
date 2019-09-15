@@ -2,23 +2,6 @@
 #include "Position.h"
 #include "Card.h"
 
-TripleTriad::Position::Position(int i, TripleTriad::Position** root, Element e)  : _index(i), element(e) {
-    using namespace TripleTriad;
-    static int adj[] = {3, -3, 1, -1};
-    int tmp = i / 3;
-    bool cond[4];
-    cond[0] = tmp == 2;
-    cond[1] = tmp == 0;
-    tmp = i % 3;
-    cond[2] = tmp == 0;
-    cond[3] = tmp == 2;
-    for (int j = 0; j < 4; ++j) {
-        if (cond[j]) continue;
-        auto idx = i + adj[j];
-        _adjacent.emplace_back(root[idx]);
-    }
-}
-
 void TripleTriad::Position::place(Card const &card) {
     _empty = false;
     _card = card;
@@ -46,6 +29,7 @@ bool TripleTriad::Position::isWall() const {
     }
     return false;
 }
+
 #define ASSIGN(OP) \
 bool TripleTriad::operator OP(TripleTriad::Position const& lhs, TripleTriad::Position const& rhs) { \
     if (lhs.isEmpty() || rhs.isEmpty()) return false; \

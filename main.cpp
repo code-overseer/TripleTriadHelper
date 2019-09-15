@@ -1,6 +1,15 @@
 #include <iostream>
+#include "Board.h"
+#include "Card.h"
+#include "TripleTriad.h"
 
-int main() {
-    std::cout << "Hello, World!" << std::endl;
+int main(int argc, char* argv[]) {
+    using namespace TripleTriad;
+    std::stack<Board> states;
+    auto main = new Board({Same, SameWall, Plus});
+    states.emplace(*main);
+
+
+
     return 0;
 }

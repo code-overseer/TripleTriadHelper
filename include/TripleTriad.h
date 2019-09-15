@@ -9,6 +9,7 @@
 #include<functional>
 #include<set>
 #include<queue>
+#include<stack>
 #include<string>
 
 enum Element { Fire, Ice, Water, Earth, Holy, Poison, Thunder, Wind, None };

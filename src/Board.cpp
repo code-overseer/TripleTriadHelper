@@ -10,14 +10,32 @@ TripleTriad::Board::Board(Rules const &rules, const Elements &elements) {
     } else {
         for (int i = 0; i < 9; ++i) _pos[i] = new Position(i, _pos);
     }
+    _computeAdjacents();
 }
 
 TripleTriad::Board::~Board() {
-    for (int i = 0; i < 9; ++i) delete _pos[i];
-    delete [] _pos;
+    for (auto & p : _pos) delete p;
 }
 
-void TripleTriad::Board::_checkDefault(int position) {
+void TripleTriad::Board::_computeAdjacents() {
+    static int adj[] = {3, -3, 1, -1};
+    for (int i = 0; i < 9; ++i) {
+        int tmp = i / 3;
+        bool cond[4];
+        cond[0] = tmp == 2;
+        cond[1] = tmp == 0;
+        tmp = i % 3;
+        cond[2] = tmp == 0;
+        cond[3] = tmp == 2;
+        for (int j = 0; j < 4; ++j) {
+            if (cond[j]) continue;
+            auto idx = i + adj[j];
+            _adjacent[i].emplace_back(_pos[idx]);
+        }
+    }
+}
+
+void TripleTriad::Board::_defaultFlip(int position) {
     auto const &played = *(_pos[position]->card());
     for (auto &i : _getCombo(position)) {
         auto other = i->getCard();
@@ -28,7 +46,7 @@ void TripleTriad::Board::_checkDefault(int position) {
     }
 }
 
-void TripleTriad::Board::_checkSame(int position) {
+void TripleTriad::Board::_sameFlip(int position) {
     auto sames = _getSame(position);
     if (sames.size() < 2 && !(_sameWall && sames.size() == 1 && _pos[position]->isWall())) return;
     auto const &played = *(_pos[position]->card());
@@ -40,9 +58,10 @@ void TripleTriad::Board::_checkSame(int position) {
             _score[played.team] += 1;
         }
     }
+    _comboFlip(position, sames);
 }
 
-void TripleTriad::Board::_checkPlus(int position) {
+void TripleTriad::Board::_plusFlip(int position) {
     auto pluses = _getPlus(position);
 
     if (pluses.size() < 2) return;
@@ -54,12 +73,13 @@ void TripleTriad::Board::_checkPlus(int position) {
             _score[played.team] += 1;
         }
     }
+    _comboFlip(position, pluses);
 }
 
-void TripleTriad::Board::_checkCombo(int position, std::vector<Position *> const &flipped) {
+void TripleTriad::Board::_comboFlip(int position, std::vector<Position *> const &adjacents) {
     std::queue<Position*> bfs_queue;
-    for (auto const &i : flipped) bfs_queue.push(i);
-    std::set<Position*> visited(flipped.begin(), flipped.end());
+    for (auto const &i : adjacents) bfs_queue.push(i);
+    std::set<Position*> visited(adjacents.begin(), adjacents.end());
     visited.emplace(_pos[position]);
     while (!bfs_queue.empty() && visited.size() != 9) {
         auto current = bfs_queue.front();
@@ -79,7 +99,7 @@ void TripleTriad::Board::_checkCombo(int position, std::vector<Position *> const
 
 std::vector<TripleTriad::Position*> TripleTriad::Board::_getSame(int position) const {
     std::vector<TripleTriad::Position*> output;
-    for (auto const &i : _pos[position]->adjacent()) {
+    for (auto const &i : _adjacent[position]) {
         if (i->isEmpty()) continue;
         if (*_pos[position] == *i) output.emplace_back(i);
     }
@@ -88,7 +108,7 @@ std::vector<TripleTriad::Position*> TripleTriad::Board::_getSame(int position) c
 
 std::vector<TripleTriad::Position*> TripleTriad::Board::_getPlus(int position) const {
     std::set<Position*> set;
-    auto &adj = _pos[position]->adjacent();
+    auto &adj = _adjacent[position];
     int total[4];
     for (auto const &i : adj) {
         static int j = 0;
@@ -111,7 +131,7 @@ std::vector<TripleTriad::Position*> TripleTriad::Board::_getPlus(int position) c
 
 std::vector<TripleTriad::Position*> TripleTriad::Board::_getCombo(int position) const {
     std::vector<TripleTriad::Position*> output;
-    for (auto const &i : _pos[position]->adjacent()) {
+    for (auto const &i : _adjacent[position]) {
         if (i->isEmpty()) continue;
         if (*_pos[position] > *i) output.emplace_back(i);
     }
