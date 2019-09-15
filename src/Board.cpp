@@ -21,7 +21,10 @@ void TripleTriad::Board::_checkDefault(int position) {
     auto const &played = *(_pos[position]->card());
     for (auto &i : _getCombo(position)) {
         auto other = i->getCard();
-        if (*_pos[position] > *i) other->flip(played);
+        if (*_pos[position] > *i && other->team != played.team) {
+            other->flip(played);
+            _score[played.team] += 1;
+        }
     }
 }
 
@@ -32,7 +35,10 @@ void TripleTriad::Board::_checkSame(int position) {
     for (auto const &i : sames) {
         if (i->isEmpty()) continue;
         auto other = i->getCard();
-        other->flip(played);
+        if (other->team != played.team) {
+            other->flip(played);
+            _score[played.team] += 1;
+        }
     }
 }
 
@@ -43,7 +49,10 @@ void TripleTriad::Board::_checkPlus(int position) {
     auto const &played = *(_pos[position]->card());
     for (auto const &i : pluses) {
         auto other = i->getCard();
-        other->flip(played);
+        if (other->team != played.team) {
+            other->flip(played);
+            _score[played.team] += 1;
+        }
     }
 }
 
@@ -61,7 +70,9 @@ void TripleTriad::Board::_checkCombo(int position, std::vector<Position *> const
             if (visited.count(i)) continue;
             visited.emplace(i);
             bfs_queue.push(i);
+            if (i->card()->team == played.team) continue;
             i->getCard()->flip(played);
+            _score[played.team] += 1;
         }
     }
 }

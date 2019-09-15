@@ -6,17 +6,17 @@
 
 namespace TripleTriad {
     class Card {
-        Team team = Blue;
         int _defaultNum[4] = {0, 0, 0, 0 };
         int _effectiveNum[4] = {0, 0, 0, 0};
         Element _element = None;
-        void checkElement(Element pos_element);
         void flip(Card const &flipper) { team = flipper.team; }
         inline void reset() { memcpy(_effectiveNum, _defaultNum, 4 * sizeof(int)); }
         static std::unordered_map<char, Element> const _elementMap;
         static io::CSVReader<6> _cardData;
         std::string _name;
     public:
+        Team team = Blue;
+        void checkElement(Element pos_element);
         static float const northProb[10];
         static float const southProb[10];
         static float const eastProb[10];
@@ -28,7 +28,7 @@ namespace TripleTriad {
         int const& e(bool def = false) const { return def ? _defaultNum[2] : _effectiveNum[2]; }
         int const& w(bool def = false) const { return def ? _defaultNum[3] : _effectiveNum[3]; }
         Card() = default;
-        explicit Card(char const* card_name, Team team);
+        Card(char const* card_name, Team team);
         friend class Board;
     };
 }

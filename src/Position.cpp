@@ -22,6 +22,7 @@ TripleTriad::Position::Position(int i, TripleTriad::Position** root, Element e) 
 void TripleTriad::Position::place(Card const &card) {
     _empty = false;
     _card = card;
+    _card.checkElement(element);
 }
 
 TripleTriad::Card *TripleTriad::Position::getCard() {

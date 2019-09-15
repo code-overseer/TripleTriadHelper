@@ -13,13 +13,14 @@ std::unordered_map<Element, float> const TripleTriad::Card::elementProb = // NOL
          {Ice, 0.027522936}, {Water, 0.018348624}, {Wind, 0.027522936}, {Holy, 0.009174312}};
 
 std::unordered_map<char, Element> const TripleTriad::Card::_elementMap = // NOLINT(cert-err58-cpp)
-        {{'N', None}, {'T',Thunder}, {'E', Earth}, {'P', Poison}, {'F', Fire},
-         {'I',Ice}, {'A',Water}, {'W', Wind}, {'H', Holy}};
+        {{'N', None}, {'T', Thunder}, {'E', Earth}, {'P', Poison}, {'F', Fire},
+         {'I', Ice}, {'A', Water}, {'W', Wind}, {'H', Holy}};
 
 io::CSVReader<6> TripleTriad::Card::_cardData(CARD_DATA); // NOLINT(cert-err58-cpp)
 
 void TripleTriad::Card::checkElement(Element pos_element) {
     if (pos_element == None) return;
+    reset();
     if (pos_element == _element) {
         for (auto &i : _effectiveNum) i++;
     } else {
@@ -28,15 +29,13 @@ void TripleTriad::Card::checkElement(Element pos_element) {
 }
 
 TripleTriad::Card::Card(char const *card_name, Team team) : team(team) {
-    std::string name; int attack[4]; char e; bool found = false;
-    while(_cardData.read_row(name, attack[0], attack[0], attack[1], attack[2], attack[3], e)) {
-        if (name != card_name) continue;
-        found = true;
-        _name = name;
-        memcpy(_defaultNum, attack, 4 * sizeof(int));
-        memcpy(_effectiveNum, attack, 4 * sizeof(int));
+    _name.reserve(24);
+    char e; bool found = false;
+    while(_cardData.read_row(_name, _defaultNum[0], _defaultNum[1], _defaultNum[2], _defaultNum[3], e) && !found) {
+        if (_name != card_name) continue;
+        memcpy(_effectiveNum, _defaultNum, 4 * sizeof(int));
         _element = _elementMap.at(e);
-        break;
+        found = true;
     }
     if (!found) throw std::runtime_error("Could not find card");
 }

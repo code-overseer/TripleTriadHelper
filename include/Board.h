@@ -7,7 +7,6 @@ namespace TripleTriad {
     class Position;
     class Card;
     class Board {
-
         bool _same = false;
         bool _plus = false;
         bool _sameWall = false;
