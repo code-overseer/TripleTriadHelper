@@ -14,30 +14,6 @@ TripleTriad::Card const *TripleTriad::Position::card() const {
     return &_card;
 }
 
-bool TripleTriad::Position::isWall() const {
-    if (_index != 4 && !_empty) {
-        auto tmp = _index / 3;
-        if (tmp == 2 && _card.s() == 10) return true;
-        if (!tmp && _card.n() == 10) return true;
-        tmp = _index % 3;
-        if (tmp == 2 && _card.e() == 10) return true;
-        if (!tmp && _card.w() == 10) return true;
-    }
-    return false;
-}
-
-bool TripleTriad::Position::isWall(const TripleTriad::Card &card) const {
-    if (_index != 4 && _empty) {
-        auto tmp = _index / 3;
-        if (tmp == 2 && card.s() == 10) return true;
-        if (!tmp && card.n() == 10) return true;
-        tmp = _index % 3;
-        if (tmp == 2 && card.e() == 10) return true;
-        if (!tmp && card.w() == 10) return true;
-    }
-    return false;
-}
-
 TripleTriad::Position &TripleTriad::Position::operator=(TripleTriad::Position &&other) noexcept {
     _index = other._index;
     _card = other._card;

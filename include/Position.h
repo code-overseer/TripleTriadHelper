@@ -15,8 +15,6 @@ namespace TripleTriad {
         inline Card unplace() { _empty = true; _card.unplace(); return _card; }
         int flip(Team team);
         Card const* card() const;
-        bool isWall() const;
-        bool isWall(Card const &card) const;
         inline bool isEmpty() const { return _empty; }
         inline int idx() const { return _index; }
         inline Element element() const { return _element; }

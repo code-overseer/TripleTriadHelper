@@ -8,7 +8,7 @@ namespace TripleTriad {
     class Card {
         static std::unordered_map<char, Element> const _elementMap;
         static io::CSVReader<6> _cardData;
-        int _defaultNum[4] = {0, 0, 0, 0 };
+        int _defaultNum[4] = {0, 0, 0, 0};
         int _effectiveNum[4] = {0, 0, 0, 0};
         int _idx = -1;
         Element _element = None;

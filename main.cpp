@@ -1,6 +1,5 @@
 #include <iostream>
 #include "Board.h"
-#include "Card.h"
 #include "TripleTriad.h"
 
 int main(int argc, char* argv[]) {
@@ -8,8 +7,6 @@ int main(int argc, char* argv[]) {
     std::stack<Board> states;
     auto main = new Board({Same, SameWall, Plus});
     states.emplace(*main);
-
-
 
     return 0;
 }
