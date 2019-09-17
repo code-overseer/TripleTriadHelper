@@ -20,14 +20,13 @@ namespace TripleTriad {
         std::vector<Position*> _getDefaultFlips(Card card, int position) const;
         void _getCombo(int position, std::vector<Position*> &adjacents) const;
         void _computeAdjacents();
-        void _defaultFlip(int position);
-        void _sameFlip(int position);
-        void _plusFlip(int position);
+        std::set<Position*> _getFlips(Card const &card, int position) const;
+        void _flip(std::set<Position*> const &positions, Team team);
     public:
         Board(Rules const &rules, Elements const &elements = Elements());
         Board(Board const &other);
-        void play(Card const &card, int pos);
-        void check(Card const &card, int pos);
+        int play(Card const &card, int pos);
+        float check(Card const &card, int pos, Card const* enemy = nullptr, int size = 109);
     };
 }
 

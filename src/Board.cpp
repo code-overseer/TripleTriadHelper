@@ -16,13 +16,13 @@ TripleTriad::Board::Board(Rules const &rules, const Elements &elements) {
 void TripleTriad::Board::_computeAdjacents() {
     static int adj[] = {3, -3, 1, -1};
     for (int i = 0; i < 9; ++i) {
-        int tmp = i / 3;
         bool cond[4];
+        int tmp = i / 3;
         cond[0] = tmp == 2;
         cond[1] = tmp == 0;
         tmp = i % 3;
-        cond[2] = tmp == 0;
-        cond[3] = tmp == 2;
+        cond[2] = tmp == 2;
+        cond[3] = tmp == 0;
         for (int j = 0; j < 4; ++j) {
             if (cond[j]) continue;
             auto idx = i + adj[j];
@@ -31,82 +31,61 @@ void TripleTriad::Board::_computeAdjacents() {
     }
 }
 
-void TripleTriad::Board::_defaultFlip(int position) {
-    auto flips = _getDefaultFlips(*_pos[position].card(), position);
-    auto team = _pos[position].card()->team();
-    for (auto const &i : flips) {
-        auto j = i->flip(team);
-        _score[team] += j;
-        _score[(Team)!team] -= j;
-    }
-}
-
-void TripleTriad::Board::_sameFlip(int position) {
-    auto sames = _getSame(*_pos[position].card(), position);
-    auto team = _pos[position].card()->team();
-    for (auto const &i : sames) {
-        auto j = i->flip(team);
-        _score[team] += j;
-        _score[(Team)!team] -= j;
-    }
-}
-
-void TripleTriad::Board::_plusFlip(int position) {
-    auto pluses = _getPlus(*_pos[position].card(), position);
-    auto team = _pos[position].card()->team();
-    for (auto const &i : pluses) {
-        auto j = i->flip(team);
-        _score[team] += j;
-        _score[(Team)!team] -= j;
-    }
-}
-
 std::vector<TripleTriad::Position*> TripleTriad::Board::_getSame(Card card, int position) const {
     card.place(position);
+    card.checkElement(_pos[position].element());
     std::vector<TripleTriad::Position*> output;
     if (!_same) return output;
+    int same_count = 0;
     for (auto const &i : _adjacent[position]) {
-        if (i->isEmpty()) continue;
-        if (card == *i->card()) output.emplace_back(i);
+        if (i->empty()) continue;
+        if (card == *i->card()) {
+            ++same_count;
+            if (i->card()->team() != card.team()) output.emplace_back(i);
+        }
     }
-    if (output.size() < 2 && !(_sameWall && output.size() == 1 && card.isWall())) output.clear();
+    same_count += _sameWall && !output.empty() && card.isWall();
+    if (same_count < 2) output.clear();
     _getCombo(position, output);
     return output;
 }
 
 std::vector<TripleTriad::Position*> TripleTriad::Board::_getPlus(Card card, int position) const {
     card.place(position);
+    card.checkElement(_pos[position].element());
     std::vector<TripleTriad::Position*> output;
     if (!_plus) return output;
     std::set<Position*> set;
     auto &adj = _adjacent[position];
-    int total[4];
+    int total[4] = {0,0,0,0};
+    int k = 0;
     for (auto const &i : adj) {
-        static int j = 0;
-        total[j++] = card + *i->card();
+        total[k++] = i->empty() ? 0 : card + *i->card();
     }
     for (int i = 0; i < 3; ++i) {
         if (!total[i]) continue;
         for (int j = i + 1; j < 4; ++j) {
             if (!total[j]) continue;
             if (total[i] == total[j]) {
-                set.emplace( adj[i] );
-                set.emplace( adj[j] );
+                if (adj[i]->card()->team() == card.team())
+                    set.emplace( adj[i] );
+                if (adj[j]->card()->team() == card.team())
+                    set.emplace( adj[j] );
             }
         }
     }
     output.assign( set.begin(), set.end() );
-    if (output.size() < 2) output.clear();
     _getCombo(position, output);
     return output;
 }
 
 std::vector<TripleTriad::Position*> TripleTriad::Board::_getDefaultFlips(Card card, int position) const {
     card.place(position);
+    card.checkElement(_pos[position].element());
     std::vector<TripleTriad::Position*> output;
     for (auto const &i : _adjacent[position]) {
-        if (i->isEmpty()) continue;
-        if (card > *i->card()) output.emplace_back(i);
+        if (!i->empty() && card > *i->card() && card.team() != i->card()->team())
+            output.emplace_back(i);
     }
     return output;
 }
@@ -128,8 +107,10 @@ void TripleTriad::Board::_getCombo(int position, std::vector<TripleTriad::Positi
         for (auto const &i : combos) {
             if (visited.count(i->idx())) continue;
             visited.emplace(i->idx());
-            bfs_queue.push(i);
-            adjacents.emplace_back(i);
+            if (i->card()->team() != current->card()->team()) {
+                bfs_queue.push(i);
+                adjacents.emplace_back(i);
+            }
         }
     }
 }
@@ -140,16 +121,53 @@ _elemental(other._elemental), _plus(other._plus), _score(other._score) {
     _computeAdjacents();
 }
 
-void TripleTriad::Board::play(const TripleTriad::Card &card, int pos) {
+int TripleTriad::Board::play(const TripleTriad::Card &card, int pos) {
+    auto flips = _getFlips(card, pos);
     _pos[pos].place(card);
-    _defaultFlip(pos);
-    _sameFlip(pos);
-    _plusFlip(pos);
+    _flip(flips, card.team());
+    return flips.size();
 }
 
-void TripleTriad::Board::check(const TripleTriad::Card &card, int pos) {
-
+std::set<TripleTriad::Position*> TripleTriad::Board::_getFlips(const TripleTriad::Card &card, int position) const {
+    std::vector<Position*> flips;
+    std::set<Position*> output;
+    flips = _getSame(card, position);
+    output.insert(flips.begin(), flips.end());
+    flips = _getPlus(card, position);
+    output.insert(flips.begin(), flips.end());
+    flips = _getDefaultFlips(card, position);
+    output.insert(flips.begin(), flips.end());
+    return output;
 }
+void TripleTriad::Board::_flip(std::set<Position *> const &positions, Team team) {
+    for (auto const &i : positions) {
+        static int j = 0;
+        j = i->flip(team);
+        _score[team] += j;
+        _score[team == Red ? Blue : Red] -= j;
+    }
+}
+
+float TripleTriad::Board::check(const TripleTriad::Card &card, int pos, Card const* enemy, int size) {
+    auto state = *this;
+    auto score = (float)state.play(card, pos);
+    std::vector<Position*> blanks;
+    for (auto &blank : state._pos){
+        if (!blank.empty()) continue;
+        blanks.emplace_back(&blank);
+    }
+    if (!enemy) enemy = Card::Try();
+    for (int c = 0; c < size; ++c, ++enemy) {
+        auto max = 0;
+        for (auto const &i : blanks) {
+            auto s = (int)state._getFlips(*enemy, i->idx()).size();
+            if (s > max) max = s;
+        }
+        score -= (float)max / (float)size;
+    }
+    return score;
+}
+
 
 
 

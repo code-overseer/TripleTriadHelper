@@ -2,27 +2,28 @@
 #define TRIPLETRIAD_CARD_H
 
 #include "TripleTriad.h"
-#include "Position.h"
 #include "csv.h"
 
 namespace TripleTriad {
     class Card {
         static std::unordered_map<char, Element> const _elementMap;
         static Card _cardDB[109];
-        static std::unordered_map<std::string, Card*> _cardFinder;
+        static std::unordered_map<std::string, int> _cardFinder;
         int _defaultScore[4] = {0, 0, 0, 0};
         int _effectiveScore[4] = {0, 0, 0, 0};
         int _idx = -1;
         Element _element = None;
         std::string _name;
-        Team _defaultTeam = Blue;
-        Team _team = Blue;
+        Team _defaultTeam = Red;
+        Team _team = Red;
         inline void reset() { memcpy(_effectiveScore, _defaultScore, 4 * sizeof(int)); }
-        Card(char const* card_name, Element element, int score[4]);
+        Card(std::string card_name, Element element, int score[4]);
     public:
         static Card Factory(char const* card_name, Team team);
+        static Card const* Try() { return _cardDB; }
         Card() = default;
         Card(Card const &other) = default;
+        Card(Card &&other) noexcept;
         void checkElement(Element pos_element);
         bool isWall() const;
         inline Team const &team() const { return _team; }
@@ -35,6 +36,7 @@ namespace TripleTriad {
         inline int const& w(bool def = false) const { return def ? _defaultScore[3] : _effectiveScore[3]; }
         inline void flip(Team team) { _team = team; }
         Card& operator=(Card const &other);
+        Card& operator=(Card &&other) noexcept;
         friend class Board;
         #define ASSIGN(OP) \
         friend bool operator OP(Card const& lhs, Card const& rhs);
