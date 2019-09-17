@@ -26,7 +26,7 @@ namespace TripleTriad {
         Board(Rules const &rules, Elements const &elements = Elements());
         Board(Board const &other);
         int play(Card const &card, int pos);
-        float check(Card const &card, int pos, Card const* enemy = nullptr, int size = 109);
+        float check(const TripleTriad::Card &card, int pos, std::vector<Card> const &enemy = std::vector<Card>());
     };
 }
 

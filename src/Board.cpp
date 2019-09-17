@@ -146,7 +146,7 @@ void TripleTriad::Board::_flip(std::set<Position *> const &positions, Team team)
     }
 }
 
-float TripleTriad::Board::check(const TripleTriad::Card &card, int pos, Card const* enemy, int size) {
+float TripleTriad::Board::check(const TripleTriad::Card &card, int pos, std::vector<Card> const &enemy) {
     auto state = *this;
     auto score = (float)state.play(card, pos);
     std::vector<Position*> blanks;
@@ -154,11 +154,13 @@ float TripleTriad::Board::check(const TripleTriad::Card &card, int pos, Card con
         if (!blank.empty()) continue;
         blanks.emplace_back(&blank);
     }
-    if (!enemy) enemy = Card::Try();
-    for (int c = 0; c < size; ++c, ++enemy) {
+
+    auto enemy_card = enemy.empty() ? Card::Try() : &enemy[0];
+    int size = enemy.empty() ? 109 : (int)enemy.size();
+    for (int c = 0; c < 109; ++c, ++enemy_card) {
         auto max = 0;
         for (auto const &i : blanks) {
-            auto s = (int)state._getFlips(*enemy, i->idx()).size();
+            auto s = (int)state._getFlips(*enemy_card, i->idx()).size();
             if (s > max) max = s;
         }
         score -= (float)max / (float)size;
