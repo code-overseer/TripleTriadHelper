@@ -2,38 +2,39 @@
 #define TRIPLETRIAD_CARD_H
 
 #include "TripleTriad.h"
+#include "Position.h"
 #include "csv.h"
 
 namespace TripleTriad {
     class Card {
         static std::unordered_map<char, Element> const _elementMap;
-        static io::CSVReader<6> _cardData;
-        int _defaultNum[4] = {0, 0, 0, 0};
-        int _effectiveNum[4] = {0, 0, 0, 0};
+        static Card _cardDB[109];
+        static std::unordered_map<std::string, Card*> _cardFinder;
+        int _defaultScore[4] = {0, 0, 0, 0};
+        int _effectiveScore[4] = {0, 0, 0, 0};
         int _idx = -1;
         Element _element = None;
         std::string _name;
-        Team _default = Blue;
-        inline void reset() { memcpy(_effectiveNum, _defaultNum, 4 * sizeof(int)); }
+        Team _defaultTeam = Blue;
+        Team _team = Blue;
+        inline void reset() { memcpy(_effectiveScore, _defaultScore, 4 * sizeof(int)); }
+        Card(char const* card_name, Element element, int score[4]);
     public:
-        static float const northProb[10];
-        static float const southProb[10];
-        static float const eastProb[10];
-        static float const westProb[10];
-        static std::unordered_map<Element, float const> const elementProb;
-        Team team = Blue;
-        void checkElement(Element pos_element);
-        inline void place(int i) { if (i < 9 && i >= 0) _idx = i; }
-        inline void unplace() { _idx = -1; team = _default; }
-        inline std::string const& name() const { return _name; }
-        int const& n(bool def = false) const { return def ? _defaultNum[0] : _effectiveNum[0]; }
-        int const& s(bool def = false) const { return def ? _defaultNum[1] : _effectiveNum[1]; }
-        int const& e(bool def = false) const { return def ? _defaultNum[2] : _effectiveNum[2]; }
-        int const& w(bool def = false) const { return def ? _defaultNum[3] : _effectiveNum[3]; }
-        bool isWall() const;
+        static Card Factory(char const* card_name, Team team);
         Card() = default;
-        Card(char const* card_name, Team team);
         Card(Card const &other) = default;
+        void checkElement(Element pos_element);
+        bool isWall() const;
+        inline Team const &team() const { return _team; }
+        inline void place(int i) { if (i < 9 && i >= 0) _idx = i; }
+        inline void unplace() { _idx = -1; _team = _defaultTeam; }
+        inline std::string const& name() const { return _name; }
+        inline int const& n(bool def = false) const { return def ? _defaultScore[0] : _effectiveScore[0]; }
+        inline int const& s(bool def = false) const { return def ? _defaultScore[1] : _effectiveScore[1]; }
+        inline int const& e(bool def = false) const { return def ? _defaultScore[2] : _effectiveScore[2]; }
+        inline int const& w(bool def = false) const { return def ? _defaultScore[3] : _effectiveScore[3]; }
+        inline void flip(Team team) { _team = team; }
+        Card& operator=(Card const &other);
         friend class Board;
         #define ASSIGN(OP) \
         friend bool operator OP(Card const& lhs, Card const& rhs);

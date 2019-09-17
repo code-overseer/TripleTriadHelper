@@ -23,7 +23,6 @@ namespace TripleTriad {
         void _defaultFlip(int position);
         void _sameFlip(int position);
         void _plusFlip(int position);
-
     public:
         Board(Rules const &rules, Elements const &elements = Elements());
         Board(Board const &other);

@@ -24,9 +24,8 @@ TripleTriad::Position &TripleTriad::Position::operator=(TripleTriad::Position &&
 }
 int TripleTriad::Position::flip(Team team) {
     if (_empty) return 0;
-    if (_card.team == team) return 0;
-
-    _card.team = team;
+    if (_card.team() == team) return 0;
+    _card.flip(team);
     return 1;
 }
 

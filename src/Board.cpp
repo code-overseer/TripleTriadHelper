@@ -33,20 +33,32 @@ void TripleTriad::Board::_computeAdjacents() {
 
 void TripleTriad::Board::_defaultFlip(int position) {
     auto flips = _getDefaultFlips(*_pos[position].card(), position);
-    auto team = _pos[position].card()->team;
-    for (auto &i : flips) _score[team] += i->flip(team);
+    auto team = _pos[position].card()->team();
+    for (auto const &i : flips) {
+        auto j = i->flip(team);
+        _score[team] += j;
+        _score[(Team)!team] -= j;
+    }
 }
 
 void TripleTriad::Board::_sameFlip(int position) {
     auto sames = _getSame(*_pos[position].card(), position);
-    auto team = _pos[position].card()->team;
-    for (auto const &i : sames) _score[team] += i->flip(team);
+    auto team = _pos[position].card()->team();
+    for (auto const &i : sames) {
+        auto j = i->flip(team);
+        _score[team] += j;
+        _score[(Team)!team] -= j;
+    }
 }
 
 void TripleTriad::Board::_plusFlip(int position) {
     auto pluses = _getPlus(*_pos[position].card(), position);
-    auto team = _pos[position].card()->team;
-    for (auto const &i : pluses) _score[team] += i->flip(team);
+    auto team = _pos[position].card()->team();
+    for (auto const &i : pluses) {
+        auto j = i->flip(team);
+        _score[team] += j;
+        _score[(Team)!team] -= j;
+    }
 }
 
 std::vector<TripleTriad::Position*> TripleTriad::Board::_getSame(Card card, int position) const {
