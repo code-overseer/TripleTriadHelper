@@ -25,12 +25,12 @@ namespace TripleTriad {
         bool isWall() const;
         int idx() const;
         void place(Position const &pos);
+        int n(bool def = false) const;
+        int s(bool def = false) const;
+        int e(bool def = false) const;
+        int w(bool def = false) const;
         inline Team const &team() const { return _team; }
         inline std::string const& name() const { return _name; }
-        inline int n(bool def = false) const;
-        inline int s(bool def = false) const;
-        inline int e(bool def = false) const;
-        inline int w(bool def = false) const;
         inline void flip(Team team) { _team = team; }
         Card& operator=(Card const &other);
         Card& operator=(Card &&other) noexcept;
