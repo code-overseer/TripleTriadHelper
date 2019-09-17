@@ -2,9 +2,10 @@
 #include "Position.h"
 
 TripleTriad::Board::Board(Rules const &rules, const Elements &elements) {
-    std::unordered_map<Rule, bool&> rule_map = {{Same, _same}, {SameWall, _sameWall}, {Plus, _plus}, {Elemental, _elemental}};
+    static std::unordered_map<Rule, bool&> rule_map = {{Same, _same}, {SameWall, _sameWall}, {Plus, _plus}, {Elemental, _elemental}};
     for (auto const &i : rules) rule_map.at(i) = true;
     if (_elemental) {
+        if (elements.size() != 9) throw std::runtime_error("Expected 9 elements");
         auto j = elements.begin();
         for (auto i = 0; i < 9; ++i, ++j) _pos[i] = Position(i, *j);
     } else {
@@ -32,8 +33,7 @@ void TripleTriad::Board::_computeAdjacents() {
 }
 
 std::vector<TripleTriad::Position*> TripleTriad::Board::_getSame(Card card, int position) const {
-    card.place(position);
-    card.checkElement(_pos[position].element());
+    card.place(_pos[position]);
     std::vector<TripleTriad::Position*> output;
     if (!_same) return output;
     int same_count = 0;
@@ -51,8 +51,7 @@ std::vector<TripleTriad::Position*> TripleTriad::Board::_getSame(Card card, int 
 }
 
 std::vector<TripleTriad::Position*> TripleTriad::Board::_getPlus(Card card, int position) const {
-    card.place(position);
-    card.checkElement(_pos[position].element());
+    card.place(_pos[position]);
     std::vector<TripleTriad::Position*> output;
     if (!_plus) return output;
     std::set<Position*> set;
@@ -80,8 +79,7 @@ std::vector<TripleTriad::Position*> TripleTriad::Board::_getPlus(Card card, int 
 }
 
 std::vector<TripleTriad::Position*> TripleTriad::Board::_getDefaultFlips(Card card, int position) const {
-    card.place(position);
-    card.checkElement(_pos[position].element());
+    card.place(_pos[position]);
     std::vector<TripleTriad::Position*> output;
     for (auto const &i : _adjacent[position]) {
         if (!i->empty() && card > *i->card() && card.team() != i->card()->team())

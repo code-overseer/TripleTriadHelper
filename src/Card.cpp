@@ -1,6 +1,5 @@
 #include "Card.h"
-
-#include <utility>
+#include "Position.h"
 
 std::unordered_map<std::string, int> TripleTriad::Card::_cardFinder;
 TripleTriad::Card TripleTriad::Card::_cardDB[109];
@@ -8,47 +7,29 @@ std::unordered_map<char, Element> const TripleTriad::Card::_elementMap = // NOLI
         {{'N', None}, {'T', Thunder}, {'E', Earth}, {'P', Poison}, {'F', Fire},
          {'I', Ice}, {'A', Water}, {'W', Wind}, {'H', Holy}};
 
-void TripleTriad::Card::checkElement(Element pos_element) {
-    if (pos_element == None) return;
-    reset();
-    if (pos_element == _element) {
-        for (auto &i : _effectiveScore) i++;
-    } else {
-        for (auto &i : _effectiveScore) i--;
-    }
-}
-
 TripleTriad::Card::Card(TripleTriad::Card &&other) noexcept : _name(std::move(other._name)), _element(other._element) {
-    memcpy(_defaultScore, other._defaultScore, 4 * sizeof(int));
-    memcpy(_effectiveScore, other._effectiveScore, 4 * sizeof(int));
+    memcpy(_score, other._score, 4 * sizeof(int));
     _team = other._team;
-    _defaultTeam = other._defaultTeam;
 }
 
 TripleTriad::Card::Card(std::string card_name, Element element, int score[4]) : _name(std::move(card_name)), _element(element) {
-    memcpy(_defaultScore, score, 4 * sizeof(int));
-    memcpy(_effectiveScore, score, 4 * sizeof(int));
+    memcpy(_score, score, 4 * sizeof(int));
 }
 
 TripleTriad::Card &TripleTriad::Card::operator=(TripleTriad::Card &&other) noexcept {
     _name = std::move(other._name);
     _element = other._element;
-    memcpy(_defaultScore, other._defaultScore, 4 * sizeof(int));
-    memcpy(_effectiveScore, other._effectiveScore, 4 * sizeof(int));
+    memcpy(_score, other._score, 4 * sizeof(int));
     _team = other._team;
-    _defaultTeam = other._defaultTeam;
-    _idx = other._idx;
     return *this;
 }
 
 TripleTriad::Card &TripleTriad::Card::operator=(const TripleTriad::Card &other) {
     _name = other._name;
     _element = other._element;
-    memcpy(_defaultScore, other._defaultScore, 4 * sizeof(int));
-    memcpy(_effectiveScore, other._effectiveScore, 4 * sizeof(int));
+    memcpy(_score, other._score, 4 * sizeof(int));
     _team = other._team;
-    _defaultTeam = other._defaultTeam;
-    _idx = other._idx;
+    _position = other._position;
     return *this;
 }
 
@@ -66,17 +47,21 @@ TripleTriad::Card TripleTriad::Card::Factory(char const *card_name, Team team) {
         }
     }
     auto out = _cardDB[_cardFinder.at(card_name)];
-    out._defaultTeam = team;
     out._team = team;
 
     return out;
 }
+
+void TripleTriad::Card::place(TripleTriad::Position const &pos) { _position = &pos; }
+
+int TripleTriad::Card::idx() const { return _position ? _position->idx() : -1; }
+
 bool TripleTriad::Card::isWall() const {
-    if (_idx != 4) {
-        auto tmp = _idx / 3;
+    if (idx() != 4) {
+        auto tmp = idx() / 3;
         if (tmp == 2 && s() == 10) return true;
         if (!tmp && n() == 10) return true;
-        tmp = _idx % 3;
+        tmp = idx() % 3;
         if (tmp == 2 && e() == 10) return true;
         if (!tmp && w() == 10) return true;
     }
@@ -84,7 +69,7 @@ bool TripleTriad::Card::isWall() const {
 }
 #define ASSIGN(OP) \
 bool TripleTriad::operator OP(TripleTriad::Card const& lhs, TripleTriad::Card const& rhs) { \
-	switch (lhs._idx - rhs._idx) { \
+	switch (lhs.idx() - rhs.idx()) { \
 		case 3: \
 			return lhs.n() OP rhs.s(); \
 		case -3: \
@@ -98,13 +83,12 @@ bool TripleTriad::operator OP(TripleTriad::Card const& lhs, TripleTriad::Card co
 	} \
 }
 ASSIGN(>)
-
 ASSIGN(<)
 
 #undef ASSIGN
 
 bool TripleTriad::operator==(TripleTriad::Card const& lhs, TripleTriad::Card const& rhs) {
-    switch (lhs._idx - rhs._idx) {
+    switch (lhs.idx() - rhs.idx()) {
         case 3:
             return lhs.n(true) == rhs.s(true);
         case -3:
@@ -119,7 +103,7 @@ bool TripleTriad::operator==(TripleTriad::Card const& lhs, TripleTriad::Card con
 }
 
 int TripleTriad::operator+(TripleTriad::Card const& lhs, TripleTriad::Card const& rhs) {
-    switch (lhs._idx - rhs._idx) {
+    switch (lhs.idx() - rhs.idx()) {
         case 3:
             return lhs.n(true) + rhs.s(true);
         case -3:
@@ -131,4 +115,25 @@ int TripleTriad::operator+(TripleTriad::Card const& lhs, TripleTriad::Card const
         default:
             throw std::runtime_error("Not adjacent cards");
     }
+}
+
+int TripleTriad::Card::n(bool def) const {
+    if (!def || _position->element() == None) return _score[0];
+    bool a = _position->element() == _element;
+    return _score[0] + a - !a;
+}
+int TripleTriad::Card::s(bool def) const {
+    if (!def || _position->element() == None) return _score[1];
+    bool a = _position->element() == _element;
+    return _score[1] + a - !a;
+}
+int TripleTriad::Card::e(bool def) const {
+    if (!def || _position->element() == None) return _score[2];
+    bool a = _position->element() == _element;
+    return _score[2] + a - !a;
+}
+int TripleTriad::Card::w(bool def) const {
+    if (!def || _position->element() == None) return _score[3];
+    bool a = _position->element() == _element;
+    return _score[3] + a - !a;
 }

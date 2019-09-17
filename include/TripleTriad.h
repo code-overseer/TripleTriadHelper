@@ -11,6 +11,7 @@
 #include<queue>
 #include<stack>
 #include<string>
+#include <utility>
 
 enum Element { Fire, Ice, Water, Earth, Holy, Poison, Thunder, Wind, None };
 enum Rule { Same, SameWall, Plus, Elemental };

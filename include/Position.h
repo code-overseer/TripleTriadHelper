@@ -7,12 +7,11 @@ namespace TripleTriad {
     struct Position {
         Position() = default;
         explicit Position(int i, Element e = None) : _index(i), _element(e) {}
-        Position(Position const &other) = default;
+        Position(Position const &other);
         Position& operator=(Position &&other) noexcept;
-        Position& operator=(Position const &other) = default;
+        Position& operator=(Position const &other);
         int flip(Team team);
         void place(TripleTriad::Card const &card);
-        inline TripleTriad::Card unplace() { _empty = true; _card.unplace(); return _card; }
         TripleTriad::Card const* card() const;
         inline bool empty() const { return _empty; }
         inline int idx() const { return _index; }
