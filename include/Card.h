@@ -2,7 +2,6 @@
 #define TRIPLETRIAD_CARD_H
 
 #include "TripleTriad.h"
-#include "csv.h"
 
 namespace TripleTriad {
     class Position;
@@ -25,7 +24,7 @@ namespace TripleTriad {
         bool isWall() const;
         int idx() const;
         void place(Position const &pos);
-        int n(bool def = false) const;
+        int n(bool isDefault = false) const;
         int s(bool def = false) const;
         int e(bool def = false) const;
         int w(bool def = false) const;

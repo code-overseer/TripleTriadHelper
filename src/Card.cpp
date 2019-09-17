@@ -1,3 +1,4 @@
+#include "csv.h"
 #include "Card.h"
 #include "Position.h"
 
@@ -84,7 +85,6 @@ bool TripleTriad::operator OP(TripleTriad::Card const& lhs, TripleTriad::Card co
 }
 ASSIGN(>)
 ASSIGN(<)
-
 #undef ASSIGN
 
 bool TripleTriad::operator==(TripleTriad::Card const& lhs, TripleTriad::Card const& rhs) {
@@ -117,23 +117,26 @@ int TripleTriad::operator+(TripleTriad::Card const& lhs, TripleTriad::Card const
     }
 }
 
-int TripleTriad::Card::n(bool def) const {
-    if (!def || _position->element() == None) return _score[0];
+int TripleTriad::Card::n(bool isDefault) const {
+    if (isDefault || _position->element() == None) return _score[0];
     bool a = _position->element() == _element;
     return _score[0] + a - !a;
 }
+
 int TripleTriad::Card::s(bool def) const {
-    if (!def || _position->element() == None) return _score[1];
+    if (def || _position->element() == None) return _score[1];
     bool a = _position->element() == _element;
     return _score[1] + a - !a;
 }
+
 int TripleTriad::Card::e(bool def) const {
-    if (!def || _position->element() == None) return _score[2];
+    if (def || _position->element() == None) return _score[2];
     bool a = _position->element() == _element;
     return _score[2] + a - !a;
 }
+
 int TripleTriad::Card::w(bool def) const {
-    if (!def || _position->element() == None) return _score[3];
+    if (def || _position->element() == None) return _score[3];
     bool a = _position->element() == _element;
     return _score[3] + a - !a;
 }
