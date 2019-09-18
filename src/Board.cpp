@@ -1,5 +1,4 @@
 #include "Board.h"
-#include "Position.h"
 
 TripleTriad::Board::Board(Rules const &rules, const Elements &elements) {
     static std::unordered_map<Rule, bool&> rule_map = {{Same, _same}, {SameWall, _sameWall}, {Plus, _plus}, {Elemental, _elemental}};
@@ -146,15 +145,10 @@ void TripleTriad::Board::_flip(std::set<Position *> const &positions, Team team)
     }
 }
 
-float TripleTriad::Board::check(const TripleTriad::Card &card, int pos, std::vector<Card> const &enemy) {
+float TripleTriad::Board::_computeHint(Card const &card, int pos, std::vector<Card> const &enemy) {
     auto state = *this;
     auto score = (float)state.play(card, pos);
-    std::vector<Position*> blanks;
-    for (auto &blank : state._pos){
-        if (!blank.empty()) continue;
-        blanks.emplace_back(&blank);
-    }
-
+    auto blanks = state._getBlanks();
     auto enemy_card = enemy.empty() ? Card::Try() : &enemy[0];
     int size = enemy.empty() ? 109 : (int)enemy.size();
     for (int c = 0; c < 109; ++c, ++enemy_card) {
@@ -167,6 +161,45 @@ float TripleTriad::Board::check(const TripleTriad::Card &card, int pos, std::vec
     }
     return score;
 }
+
+std::vector<TripleTriad::Position const*> TripleTriad::Board::_getBlanks() const {
+    std::vector<Position const*> blanks;
+    for (int i = 0; i < 9; ++i) {
+        if (_pos[i].empty()) blanks.emplace_back(_pos + i);
+    }
+    return blanks;
+}
+
+void TripleTriad::Board::hint(std::vector<Card> const &player, std::vector<Card> const &enemy) {
+    static struct compare {
+        bool operator() (hint_t const &i, hint_t const &j) { return (i.score > j.score);}
+    } c;
+    auto blanks = _getBlanks();
+    std::vector<hint_t> hints;
+    for (auto const &blank_pos : blanks) {
+        for (auto const &card : player) {
+            hints.emplace_back((hint_t){card.name(), blank_pos->idx(), _computeHint(card, blank_pos->idx(), enemy) });
+        }
+    }
+    std::sort(hints.begin(), hints.end(), c);
+
+    std::cout << std::left << std::setw(6) << std::setfill(' ') << "No.";
+    std::cout << std::left << std::setw(15) << std::setfill(' ') << "Card";
+    std::cout << std::left << std::setw(9) << std::setfill(' ') << "Position";
+    std::cout << std::left << std::setw(15) << std::setfill(' ') << "Potential";
+    std::cout << '\n';
+
+    for (int i = 0; i < 5 && i < (int)hints.size(); ++i) {
+        std::cout << std::left << std::setw(6) << std::setfill(' ') << i + 1;
+        std::cout << std::left << std::setw(15) << std::setfill(' ') << hints[i].name;
+        std::cout << std::left << std::setw(9) << std::setfill(' ') << hints[i].position;
+        std::cout << std::left << std::setw(15) << std::setfill(' ') << hints[i].score;
+        std::cout << '\n';
+    }
+    std::cout.flush();
+}
+
+
 
 
 

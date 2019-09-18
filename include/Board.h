@@ -3,10 +3,16 @@
 
 #include "TripleTriad.h"
 #include "Position.h"
+#include "Card.h"
 
 namespace TripleTriad {
     class Card;
     class Board {
+        struct hint_t {
+            std::string name;
+            int position = -1;
+            float score = 0;
+        };
         bool _same = false;
         bool _plus = false;
         bool _sameWall = false;
@@ -18,15 +24,17 @@ namespace TripleTriad {
         std::vector<Position*> _getSame(Card card, int position) const;
         std::vector<Position*> _getPlus(Card card, int position) const;
         std::vector<Position*> _getDefaultFlips(Card card, int position) const;
+        std::vector<Position const*> _getBlanks() const;
         void _getCombo(int position, std::vector<Position*> &adjacents) const;
         void _computeAdjacents();
         std::set<Position*> _getFlips(Card const &card, int position) const;
         void _flip(std::set<Position*> const &positions, Team team);
+        float _computeHint(TripleTriad::Card const &card, int pos, std::vector<Card> const &enemy);
     public:
         Board(Rules const &rules, Elements const &elements = Elements());
         Board(Board const &other);
+        void hint(std::vector<Card> const &player, std::vector<Card> const &enemy = std::vector<Card>());
         int play(Card const &card, int pos);
-        float check(const TripleTriad::Card &card, int pos, std::vector<Card> const &enemy = std::vector<Card>());
     };
 }
 

@@ -12,6 +12,7 @@
 #include<stack>
 #include<string>
 #include <utility>
+#include <iomanip>
 
 enum Element { Fire, Ice, Water, Earth, Holy, Poison, Thunder, Wind, None };
 enum Rule { Same, SameWall, Plus, Elemental };
