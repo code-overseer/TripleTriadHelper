@@ -150,7 +150,7 @@ float TripleTriad::Board::_computeHint(Card const &card, int pos, std::vector<Ca
     auto state = *this;
     auto score = (float)state.play(card, pos);
     auto blanks = state._getBlanks();
-    auto enemy_card = enemy.empty() ? Card::Try() : &enemy[0];
+    auto enemy_card = enemy.empty() ? Card::cardList() : &enemy[0];
     int size = enemy.empty() ? 109 : (int)enemy.size();
     for (int c = 0; c < 109; ++c, ++enemy_card) {
         auto max = 0;

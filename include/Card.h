@@ -6,8 +6,6 @@
 namespace TripleTriad {
     class Position;
     class Card {
-        static Card _cardDB[109];
-        static std::unordered_map<std::string, int> _cardFinder;
         std::string _name;
         int _score[4] = {0, 0, 0, 0};
         Element _element = None;
@@ -15,9 +13,11 @@ namespace TripleTriad {
         Team _team = Red;
         Card(std::string card_name, Element element, int score[4]);
     public:
-        static Card Factory(char const* card_name, Team team);
-        static Card const* Try() { return _cardDB; }
+        static Card const* cardList(int i = 0);
+        static std::unordered_map<std::string, Card const*> const& cardFinder();
+        static Card const& cardFinder(std::string const &name);
         Card() = default;
+        Card(char const* card_name, Team team);
         Card(Card const &other) = default;
         Card(Card &&other) noexcept;
         bool isWall() const;

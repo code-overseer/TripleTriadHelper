@@ -2,9 +2,6 @@
 #include "Card.h"
 #include "Position.h"
 
-std::unordered_map<std::string, int> TripleTriad::Card::_cardFinder;
-TripleTriad::Card TripleTriad::Card::_cardDB[109];
-
 TripleTriad::Card::Card(TripleTriad::Card &&other) noexcept : _name(std::move(other._name)), _element(other._element) {
     memcpy(_score, other._score, 4 * sizeof(int));
     _team = other._team;
@@ -31,23 +28,9 @@ TripleTriad::Card &TripleTriad::Card::operator=(const TripleTriad::Card &other) 
     return *this;
 }
 
-TripleTriad::Card TripleTriad::Card::Factory(char const *card_name, Team team) {
-    if (_cardFinder.empty()) {
-        io::CSVReader<6> data(CARD_DATA);
-        std::string name;
-        int score[4];
-        char e;
-        int i = 0;
-        while (data.read_row(name, score[0], score[1], score[2], score[3], e)) {
-            _cardDB[i] = Card(name, elementMap.at(e), score);
-            _cardFinder.insert({ _cardDB[i].name(), i });
-            ++i;
-        }
-    }
-    auto out = _cardDB[_cardFinder.at(card_name)];
-    out._team = team;
-
-    return out;
+TripleTriad::Card::Card(char const *card_name, Team team) {
+    *this = cardFinder(card_name);
+    _team = team;
 }
 
 void TripleTriad::Card::place(TripleTriad::Position const &pos) { _position = &pos; }
@@ -136,4 +119,40 @@ int TripleTriad::Card::w(bool def) const {
     if (def || _position->element() == None) return _score[3];
     bool a = _position->element() == _element;
     return _score[3] + a - !a;
+}
+
+TripleTriad::Card const *TripleTriad::Card::cardList(int i) {
+    static Card database[109];
+    static bool init = false;
+    if (!init) {
+        init = true;
+        io::CSVReader<6> data(CARD_DATA);
+        std::string name;
+        int score[4];
+        char e;
+        int j = 0;
+        while (data.read_row(name, score[0], score[1], score[2], score[3], e)) {
+            database[j] = Card(name, elementMap.at(e), score);
+            ++j;
+        }
+    }
+    return database + i;
+}
+
+std::unordered_map<std::string, TripleTriad::Card const*> const& TripleTriad::Card::cardFinder() {
+    static std::unordered_map<std::string, Card const*> finder;
+    static bool init = false;
+    if (!init) {
+        init = true;
+        for (int i = 0; i < 109; ++i) {
+            auto c = cardList(i);
+            finder.insert({ c->name(), c });
+        }
+    }
+    return finder;
+}
+
+TripleTriad::Card const& TripleTriad::Card::cardFinder(std::string const &name) {
+    static auto map = cardFinder();
+    return *map.at(name);
 }

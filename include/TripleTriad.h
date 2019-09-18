@@ -15,15 +15,24 @@
 #include<map>
 #include<utility>
 #include<iomanip>
+#include "cxxopts.hpp"
 
-enum Element { Fire, Ice, Water, Earth, Holy, Poison, Thunder, Wind, None };
-enum Rule { Same, SameWall, Plus, Elemental };
-enum Team { Blue, Red };
-typedef std::unordered_map<Team, int> Score;
-typedef std::unordered_map<Rule, bool> Rules;
-typedef std::vector<Element> Elements;
-static std::unordered_map<char, Element> const elementMap = // NOLINT(cert-err58-cpp)
-        {{'N', None}, {'T', Thunder}, {'E', Earth}, {'P', Poison}, {'F', Fire},
-         {'I', Ice}, {'A', Water}, {'W', Wind}, {'H', Holy}};
+namespace TripleTriad {
+    class Card;
+    enum Element { Fire, Ice, Water, Earth, Holy, Poison, Thunder, Wind, None };
+    enum Rule { Same, SameWall, Plus, Elemental };
+    enum Team { Blue, Red };
+    typedef std::unordered_map<Team, int> Score;
+    typedef std::unordered_map<Rule, bool> Rules;
+    static std::unordered_map<char, Element> const elementMap = // NOLINT(cert-err58-cpp)
+            {{'N', None}, {'T', Thunder}, {'E', Earth}, {'P', Poison}, {'F', Fire},
+             {'I', Ice}, {'A', Water}, {'W', Wind}, {'H', Holy}};
+
+    cxxopts::Options option_parser();
+    std::vector<Card> player_cards(std::string const& names, Team team);
+    void open_game(cxxopts::ParseResult const &result);
+    void close_game(cxxopts::ParseResult const &result);
+}
+
 
 #endif //TRIPLETRIAD_TRIPLETRIAD_H
