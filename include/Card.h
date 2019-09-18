@@ -6,7 +6,6 @@
 namespace TripleTriad {
     class Position;
     class Card {
-        static std::unordered_map<char, Element> const _elementMap;
         static Card _cardDB[109];
         static std::unordered_map<std::string, int> _cardFinder;
         std::string _name;

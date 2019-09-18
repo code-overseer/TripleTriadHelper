@@ -1,12 +1,13 @@
 #include "Board.h"
 
-TripleTriad::Board::Board(Rules const &rules, const Elements &elements) {
-    static std::unordered_map<Rule, bool&> rule_map = {{Same, _same}, {SameWall, _sameWall}, {Plus, _plus}, {Elemental, _elemental}};
-    for (auto const &i : rules) rule_map.at(i) = true;
+TripleTriad::Board::Board(Rules const &rules, std::string const &elements) {
+    _same = rules.at(Same);
+    _sameWall = rules.at(SameWall);
+    _plus = rules.at(Plus);
     if (_elemental) {
         if (elements.size() != 9) throw std::runtime_error("Expected 9 elements");
         auto j = elements.begin();
-        for (auto i = 0; i < 9; ++i, ++j) _pos[i] = Position(i, *j);
+        for (auto i = 0; i < 9; ++i, ++j) _pos[i] = Position(i, elementMap.at(elements[i]));
     } else {
         for (int i = 0; i < 9; ++i) _pos[i] = Position(i, None);
     }

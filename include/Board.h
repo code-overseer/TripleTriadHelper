@@ -31,7 +31,7 @@ namespace TripleTriad {
         void _flip(std::set<Position*> const &positions, Team team);
         float _computeHint(TripleTriad::Card const &card, int pos, std::vector<Card> const &enemy);
     public:
-        Board(Rules const &rules, Elements const &elements = Elements());
+        Board(Rules const &rules, std::string const &elements);
         Board(Board const &other);
         void hint(std::vector<Card> const &player, std::vector<Card> const &enemy = std::vector<Card>());
         int play(Card const &card, int pos);

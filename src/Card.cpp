@@ -4,9 +4,6 @@
 
 std::unordered_map<std::string, int> TripleTriad::Card::_cardFinder;
 TripleTriad::Card TripleTriad::Card::_cardDB[109];
-std::unordered_map<char, Element> const TripleTriad::Card::_elementMap = // NOLINT(cert-err58-cpp)
-        {{'N', None}, {'T', Thunder}, {'E', Earth}, {'P', Poison}, {'F', Fire},
-         {'I', Ice}, {'A', Water}, {'W', Wind}, {'H', Holy}};
 
 TripleTriad::Card::Card(TripleTriad::Card &&other) noexcept : _name(std::move(other._name)), _element(other._element) {
     memcpy(_score, other._score, 4 * sizeof(int));
@@ -42,7 +39,7 @@ TripleTriad::Card TripleTriad::Card::Factory(char const *card_name, Team team) {
         char e;
         int i = 0;
         while (data.read_row(name, score[0], score[1], score[2], score[3], e)) {
-            _cardDB[i] = Card(name, _elementMap.at(e), score);
+            _cardDB[i] = Card(name, elementMap.at(e), score);
             _cardFinder.insert({ _cardDB[i].name(), i });
             ++i;
         }
