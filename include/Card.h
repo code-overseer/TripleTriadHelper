@@ -27,6 +27,7 @@ namespace TripleTriad {
         int s(bool def = false) const;
         int e(bool def = false) const;
         int w(bool def = false) const;
+        inline Element const &element() const { return _element; }
         inline Team const &team() const { return _team; }
         inline std::string const& name() const { return _name; }
         inline void flip(Team team) { _team = team; }

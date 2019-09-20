@@ -35,6 +35,9 @@ namespace TripleTriad {
         Board(Board const &other);
         void hint(std::vector<Card> const &player, std::vector<Card> const &enemy = std::vector<Card>());
         int play(Card const &card, int pos);
+        inline Card const* card(int i) const { return _pos[i].card(); }
+        inline Element element(int i) const { return _pos[i].element(); }
+        inline bool isElemental(int i) const { return !_pos[i].empty() && _pos[i].element() == _pos[i].card()->element(); }
     };
 }
 

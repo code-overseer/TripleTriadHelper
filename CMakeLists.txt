@@ -10,11 +10,10 @@ add_executable(TripleTriad
         include/Card.h
         include/Board.h
         include/Position.h
-        include/utils.h
         src/Board.cpp
         src/Card.cpp
         src/Position.cpp
-        src/TripleTriad.cpp)
+        src/TripleTriad.cpp include/GUI.h src/GUI.cpp)
 target_link_libraries (TripleTriad ${CMAKE_THREAD_LIBS_INIT})
 
 add_definitions(-DCARD_DATA="${CMAKE_SOURCE_DIR}/Cards.csv")
