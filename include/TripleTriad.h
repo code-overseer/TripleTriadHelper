@@ -32,6 +32,8 @@ namespace TripleTriad {
     std::vector<Card> player_cards(std::string const& names, Team team);
     void open_game(cxxopts::ParseResult const &result);
     void close_game(cxxopts::ParseResult const &result);
+
+    void test_open();
 }
 
 

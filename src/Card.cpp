@@ -50,7 +50,9 @@ bool TripleTriad::Card::isWall() const {
 }
 #define ASSIGN(OP) \
 bool TripleTriad::operator OP(TripleTriad::Card const& lhs, TripleTriad::Card const& rhs) { \
-	switch (lhs.idx() - rhs.idx()) { \
+    auto l = lhs.idx(); \
+    auto r = rhs.idx(); \
+	switch (l - r) { \
 		case 3: \
 			return lhs.n() OP rhs.s(); \
 		case -3: \
@@ -60,7 +62,7 @@ bool TripleTriad::operator OP(TripleTriad::Card const& lhs, TripleTriad::Card co
 		case -1: \
 			return lhs.e() OP rhs.w(); \
 		default: \
-			throw std::runtime_error("Not adjacent positions"); \
+			return false; \
 	} \
 }
 ASSIGN(>)
@@ -103,20 +105,20 @@ int TripleTriad::Card::n(bool isDefault) const {
     return _score[0] + a - !a;
 }
 
-int TripleTriad::Card::s(bool def) const {
-    if (def || _position->element() == None) return _score[1];
+int TripleTriad::Card::s(bool isDefault) const {
+    if (isDefault || _position->element() == None) return _score[1];
     bool a = _position->element() == _element;
     return _score[1] + a - !a;
 }
 
-int TripleTriad::Card::e(bool def) const {
-    if (def || _position->element() == None) return _score[2];
+int TripleTriad::Card::e(bool isDefault) const {
+    if (isDefault || _position->element() == None) return _score[2];
     bool a = _position->element() == _element;
     return _score[2] + a - !a;
 }
 
-int TripleTriad::Card::w(bool def) const {
-    if (def || _position->element() == None) return _score[3];
+int TripleTriad::Card::w(bool isDefault) const {
+    if (isDefault || _position->element() == None) return _score[3];
     bool a = _position->element() == _element;
     return _score[3] + a - !a;
 }

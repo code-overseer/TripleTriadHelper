@@ -134,6 +134,7 @@ std::set<TripleTriad::Position*> TripleTriad::Board::_getFlips(const TripleTriad
     flips = _getPlus(card, position);
     output.insert(flips.begin(), flips.end());
     flips = _getDefaultFlips(card, position);
+
     output.insert(flips.begin(), flips.end());
     return output;
 }
@@ -152,7 +153,7 @@ float TripleTriad::Board::_computeHint(Card const &card, int pos, std::vector<Ca
     auto blanks = state._getBlanks();
     auto enemy_card = enemy.empty() ? Card::cardList() : &enemy[0];
     int size = enemy.empty() ? 109 : (int)enemy.size();
-    for (int c = 0; c < 109; ++c, ++enemy_card) {
+    for (int c = 0; c < size; ++c, ++enemy_card) {
         auto max = 0;
         for (auto const &i : blanks) {
             auto s = (int)state._getFlips(*enemy_card, i->idx()).size();
@@ -171,10 +172,12 @@ std::vector<TripleTriad::Position const*> TripleTriad::Board::_getBlanks() const
     return blanks;
 }
 
-void TripleTriad::Board::hint(std::vector<Card> const &player, std::vector<Card> const &enemy) {
+std::string TripleTriad::Board::hint(std::vector<Card> const &player, std::vector<Card> const &enemy) {
     static struct compare {
         bool operator() (hint_t const &i, hint_t const &j) { return (i.score > j.score);}
     } c;
+
+    std::stringstream out_stream;
     auto blanks = _getBlanks();
     std::vector<hint_t> hints;
     for (auto const &blank_pos : blanks) {
@@ -184,20 +187,21 @@ void TripleTriad::Board::hint(std::vector<Card> const &player, std::vector<Card>
     }
     std::sort(hints.begin(), hints.end(), c);
 
-    std::cout << std::left << std::setw(6) << std::setfill(' ') << "No.";
-    std::cout << std::left << std::setw(15) << std::setfill(' ') << "Card";
-    std::cout << std::left << std::setw(9) << std::setfill(' ') << "Position";
-    std::cout << std::left << std::setw(15) << std::setfill(' ') << "Potential";
-    std::cout << '\n';
+    out_stream << std::left << std::setw(6) << std::setfill(' ') << "No.";
+    out_stream << std::left << std::setw(15) << std::setfill(' ') << "Card";
+    out_stream << std::left << std::setw(9) << std::setfill(' ') << "Position";
+    out_stream << std::left << std::setw(15) << std::setfill(' ') << "Potential";
+    out_stream << '\n';
 
-    for (int i = 0; i < 5 && i < (int)hints.size(); ++i) {
-        std::cout << std::left << std::setw(6) << std::setfill(' ') << i + 1;
-        std::cout << std::left << std::setw(15) << std::setfill(' ') << hints[i].name;
-        std::cout << std::left << std::setw(9) << std::setfill(' ') << hints[i].position;
-        std::cout << std::left << std::setw(15) << std::setfill(' ') << hints[i].score;
-        std::cout << '\n';
+    for (int i = 0; i < 9 && i < (int)hints.size(); ++i) {
+        out_stream << std::left << std::setw(6) << std::setfill(' ') << i + 1;
+        out_stream << std::left << std::setw(15) << std::setfill(' ') << hints[i].name;
+        out_stream << std::left << std::setw(9) << std::setfill(' ') << hints[i].position;
+        out_stream << std::left << std::setw(15) << std::setfill(' ') << hints[i].score;
+        out_stream << '\n';
     }
-    std::cout.flush();
+
+    return out_stream.str();
 }
 
 

@@ -1,6 +1,8 @@
 #include <Board.h>
+#include <ncurses.h>
 #include "TripleTriad.h"
 #include "Card.h"
+#include "GUI.h"
 
 cxxopts::Options TripleTriad::option_parser() {
     using namespace cxxopts;
@@ -43,18 +45,66 @@ void TripleTriad::open_game(cxxopts::ParseResult const &result) {
                                             {Elemental, result["elemental"].count()}};
     Board game(rules, rules.at(Elemental) ? result["elemental"].as<std::string>() : "");
     Team turn = toupper(result["turn"].as<char>()) == 'R' ? Red : Blue;
-
-
+    GUI::init();
+    int plays = 0;
+    char input[64];
+    int card_no;
+    int pos;
+    while (plays < 10) {
+        GUI::draw(game, turn, blue, red);
+        move(37, 0);
+        echo();
+        getnstr(input, 5);
+        if (!strlen(input)) continue;
+        noecho();
+        move(37, 0);
+        clrtoeol();
+        try {
+            if (turn == Blue && !strcmp(input, "hint")) {
+                GUI::showHint(game.hint(blue, red));
+                move(37, 0);
+            } else if (strlen(input) < 4) {
+                card_no = atoi(strtok(input, " "));
+                pos = atoi(strtok(nullptr, " "));
+                game.play(turn == Red ? red[card_no] : blue[card_no], pos);
+                ++plays;
+                if (turn == Red) red.erase(red.begin() + card_no);
+                else blue.erase(blue.begin() + card_no);
+                turn = (Team)!turn;
+            } else {
+                throw std::exception();
+            }
+        } catch (std::exception &e) {
+            GUI::invalid_input(input);
+            continue;
+        }
+    }
+    endwin();
 }
 
 void TripleTriad::close_game(cxxopts::ParseResult const &result) {
     std::vector<Card> blue = player_cards(result["blue"].as<std::string>(), Blue);
     std::unordered_map<Rule, bool> rules = {{Same, result["same"].as<bool>()},
                                             {SameWall, result["wall"].as<bool>()},
-                                            {Plus, result["plus"].as<bool>()}};
-    auto red = Card::cardFinder();
+                                            {Plus, result["plus"].as<bool>()},
+                                            {Elemental, result["elemental"].count()}};
     Board game(rules, rules.at(Elemental) ? result["elemental"].as<std::string>() : "");
+    std::cout<<game.hint(blue)<<std::endl;
 
+}
+
+void TripleTriad::test_open() {
+    std::vector<Card> blue = player_cards("Quistis,Squall,Seifer,Rinoa,Ifrit", Blue);
+    std::vector<Card> red = player_cards("Edea,Grendel,Gesper,Funguar,Gayla", Red);
+    std::unordered_map<Rule, bool> rules = {{Same, false},
+                                            {SameWall, false},
+                                            {Plus, false},
+                                            {Elemental, false}};
+    Board game(rules, "");
+    game.play(blue[4], 6);
+    game.play(red[0], 7);
+
+    std::cout<<game.score(Red)<<':'<<game.score(Blue)<<std::endl;
 }
 
 
