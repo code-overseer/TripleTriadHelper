@@ -118,9 +118,9 @@ void TripleTriad::GUI::drawBoard(const TripleTriad::Board &board) {
     score_card[2] = static_cast<char>('0' + board.score(Blue));
     if (score_card[0] > '9') score_card[0] = 'A';
     if (score_card[2] > '9') score_card[2] = 'A';
-    mvaddstr(33,0, "Input: [Card no] [Pos no]\n");
+    mvaddstr(33,0, "Input: [Card no]:[Pos no]\n");
     mvaddstr(34,0, "For Blue turn only, input: hint\n");
-    mvaddstr(35,0, "For non-Open game, opponent input: [CardName] [Pos no]");
+    mvaddstr(35,0, "For non-Open game, opponent input: [CardName]:[Pos no]");
     mvaddnstr(24, 15, score_card, 3);
 }
 

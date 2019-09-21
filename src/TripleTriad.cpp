@@ -50,7 +50,7 @@ void TripleTriad::open_game(cxxopts::ParseResult const &result) {
     char input[64];
     int card_no;
     int pos;
-    while (plays < 10) {
+    while (plays < 9) {
         GUI::draw(game, turn, blue, red);
         move(37, 0);
         echo();
@@ -64,13 +64,18 @@ void TripleTriad::open_game(cxxopts::ParseResult const &result) {
                 GUI::showHint(game.hint(blue, red));
                 move(37, 0);
             } else if (strlen(input) < 4) {
-                card_no = atoi(strtok(input, " "));
-                pos = atoi(strtok(nullptr, " "));
-                game.play(turn == Red ? red[card_no] : blue[card_no], pos);
+                card_no = atoi(strtok(input, ":"));
+                pos = atoi(strtok(nullptr, ":"));
+                if (turn == Red) {
+                    game.play(red[card_no], pos);
+                    red.erase(red.begin() + card_no);
+                    turn = Blue;
+                } else {
+                    game.play(blue[card_no], pos);
+                    blue.erase(blue.begin() + card_no);
+                    turn = Red;
+                }
                 ++plays;
-                if (turn == Red) red.erase(red.begin() + card_no);
-                else blue.erase(blue.begin() + card_no);
-                turn = (Team)!turn;
             } else {
                 throw std::exception();
             }
@@ -89,7 +94,50 @@ void TripleTriad::close_game(cxxopts::ParseResult const &result) {
                                             {Plus, result["plus"].as<bool>()},
                                             {Elemental, result["elemental"].count()}};
     Board game(rules, rules.at(Elemental) ? result["elemental"].as<std::string>() : "");
-    std::cout<<game.hint(blue)<<std::endl;
+    Team turn = toupper(result["turn"].as<char>()) == 'R' ? Red : Blue;
+    GUI::init();
+    int plays = 0;
+    int red_cards = 5;
+    char input[64];
+
+    int card_no;
+    int pos;
+    while (plays < 9) {
+        GUI::draw(game, turn, blue, red_cards);
+        move(37, 0);
+        echo();
+        getnstr(input, 32);
+        if (!strlen(input)) continue;
+        noecho();
+        move(37, 0);
+        clrtoeol();
+        try {
+            if (turn == Blue && !strcmp(input, "hint")) {
+                GUI::showHint(game.hint(blue));
+                move(37, 0);
+            } else if (turn == Blue && strlen(input) < 4) {
+                card_no = atoi(strtok(input, ":"));
+                pos = atoi(strtok(nullptr, ":"));
+                game.play(blue[card_no], pos);
+                ++plays;
+                blue.erase(blue.begin() + card_no);
+                turn = Red;
+            } else if (turn == Red) {
+                auto c = Card(strtok(input, ":"), Red);
+                game.play(c, atoi(strtok(nullptr, ":")));
+                ++plays;
+                --red_cards;
+                turn = Blue;
+            } else {
+                throw std::exception();
+            }
+        } catch (std::exception &e) {
+            GUI::invalid_input(input);
+            continue;
+        }
+    }
+    endwin();
+
 
 }
 
