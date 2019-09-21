@@ -12,10 +12,10 @@ namespace TripleTriad {
     class Card;
     namespace GUI {
         static std::unordered_map<Element, char const> const element_map = // NOLINT(cert-err58-cpp)
-                {{None, ' '}, {Thunder, 't'}, {Earth, 'e'}, {Poison, 'p'}, {Fire, 'f'},
-                 {Ice, 'i'}, {Water, 'a'}, {Wind, 'w'}, {Holy, 'h'}};
+                {{None, ' '}, {Thunder, 'T'}, {Earth, 'E'}, {Poison, 'P'}, {Fire, 'F'},
+                 {Ice, 'I'}, {Water, 'A'}, {Wind, 'W'}, {Holy, 'H'}};
         void init();
-        void drawBlock(std::pair<int, int> const &root, Element elemental = None, Card const* card = nullptr);
+        void drawBlock(std::pair<int, int> const &root, Element board_elem = None, Card const* card = nullptr);
         void clearBlock(std::pair<int, int> const &root);
         void drawPlayerList(std::vector<Card> const &cards, Team team);
         void drawPlayerList(int unknown_count);

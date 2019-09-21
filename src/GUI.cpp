@@ -15,7 +15,7 @@ void TripleTriad::GUI::init() {
     clear();
 }
 
-void TripleTriad::GUI::drawBlock(std::pair<int, int> const &root, Element elemental, Card const *card) {
+void TripleTriad::GUI::drawBlock(std::pair<int, int> const &root, Element board_elem, Card const *card) {
     mvaddch(root.second, root.first, '+');
     mvaddch(root.second + 4, root.first, '+');
     mvaddch(root.second, root.first + 4, '+');
@@ -27,9 +27,10 @@ void TripleTriad::GUI::drawBlock(std::pair<int, int> const &root, Element elemen
         mvaddch(root.second + i, root.first, '|'); // left
         mvaddch(root.second + i, root.first + 4, '|'); // right
     }
-    mvaddch(root.second + 1, root.first + 3, element_map.at(elemental));
+    mvaddch(root.second + 1, root.first + 1, element_map.at(board_elem));
 
     if (!card) return;
+    mvaddch(root.second + 1, root.first + 3, element_map.at(card->element()));
     char score = static_cast<char>('0' + card->n(true));
     mvaddch(root.second + 1, root.first + 2, score > '9' ? 'A' : score); // north
     score = static_cast<char>('0' + card->s(true));
@@ -110,7 +111,6 @@ void TripleTriad::GUI::drawBoard(const TripleTriad::Board &board) {
             drawBlock({x, y}, board.element(i));
             mvaddch(y + 2, x + 2, '0' + i);
         }
-        if (board.isElemental(i)) mvaddch(y + 1, x + 3, toupper(element_map.at(c->element())));
     }
     char score_card[3];
     score_card[0] = static_cast<char>('0' + board.score(Red));
