@@ -23,7 +23,7 @@ namespace TripleTriad {
         std::vector<Position*> _adjacent[9];
         std::vector<Position*> _getSame(Card card, int position) const;
         std::vector<Position*> _getPlus(Card card, int position) const;
-        std::vector<Position*> _getDefaultFlips(Card card, int position) const;
+        std::vector<Position*> _getDefaultFlips(Card card, int position, bool flip = false) const;
         std::vector<Position const*> _getBlanks() const;
         void _getCombo(int position, std::vector<Position*> &adjacents) const;
         void _computeAdjacents();

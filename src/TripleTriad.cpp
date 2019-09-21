@@ -94,16 +94,18 @@ void TripleTriad::close_game(cxxopts::ParseResult const &result) {
 }
 
 void TripleTriad::test_open() {
-    std::vector<Card> blue = player_cards("Quistis,Squall,Seifer,Rinoa,Ifrit", Blue);
-    std::vector<Card> red = player_cards("Edea,Grendel,Gesper,Funguar,Gayla", Red);
-    std::unordered_map<Rule, bool> rules = {{Same, false},
-                                            {SameWall, false},
+    std::vector<Card> blue = player_cards("Edea,Quistis,Bahamut,Odin,Leviathan", Blue);
+    std::vector<Card> red = player_cards("Squall,Blitz,Elastoid,GIM47N,Adamantoise", Red);
+    std::unordered_map<Rule, bool> rules = {{Same, true},
+                                            {SameWall, true},
                                             {Plus, false},
                                             {Elemental, false}};
     Board game(rules, "");
-    game.play(blue[4], 6);
-    game.play(red[0], 7);
-
+    game.play(red[0], 0);
+    game.play(blue[1], 3);
+    game.play(red[3], 7);
+    game.play(blue[4], 8);
+    game.play(red[4], 4);
     std::cout<<game.score(Red)<<':'<<game.score(Blue)<<std::endl;
 }
 

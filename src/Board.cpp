@@ -78,12 +78,16 @@ std::vector<TripleTriad::Position*> TripleTriad::Board::_getPlus(Card card, int 
     return output;
 }
 
-std::vector<TripleTriad::Position*> TripleTriad::Board::_getDefaultFlips(Card card, int position) const {
+std::vector<TripleTriad::Position*> TripleTriad::Board::_getDefaultFlips(Card card, int position, bool flip) const {
+    if (flip) card.flip((Team)!card.team());
     card.place(_pos[position]);
     std::vector<TripleTriad::Position*> output;
     for (auto const &i : _adjacent[position]) {
-        if (!i->empty() && card > *i->card() && card.team() != i->card()->team())
+        if (!i->empty() && card > *i->card() && card.team() != i->card()->team()) {
             output.emplace_back(i);
+//            std::cout<<i->card()->name()<<std::endl;
+        }
+
     }
     return output;
 }
@@ -99,13 +103,13 @@ void TripleTriad::Board::_getCombo(int position, std::vector<TripleTriad::Positi
     visited.emplace(position);
     while (!bfs_queue.empty() && visited.size() != 9) {
         auto current = bfs_queue.front();
-        auto combos = _getDefaultFlips(*(current->card()), current->idx());
+        auto combos = _getDefaultFlips(*(current->card()), current->idx(), true);
         auto const &played = *(current->card());
         bfs_queue.pop();
         for (auto const &i : combos) {
             if (visited.count(i->idx())) continue;
             visited.emplace(i->idx());
-            if (i->card()->team() != current->card()->team()) {
+            if (i->card()->team() == current->card()->team()) {
                 bfs_queue.push(i);
                 adjacents.emplace_back(i);
             }
