@@ -105,7 +105,7 @@ void TripleTriad::GUI::drawBoard(const TripleTriad::Board &board) {
         int x = x0 + 5 * (i % 3);
         auto c = board.card(i);
         if (c) {
-            drawBlock({x, y}, c->element(), c);
+            drawBlock({x, y}, board.element(i), c);
             mvaddch(y + 2, x + 2, c->team() == Red ? 'R' : 'B');
         } else {
             drawBlock({x, y}, board.element(i));
