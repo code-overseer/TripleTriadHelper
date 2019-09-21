@@ -39,6 +39,8 @@ std::vector<TripleTriad::Card> TripleTriad::player_cards(std::string const &name
 void TripleTriad::open_game(cxxopts::ParseResult const &result) {
     std::vector<Card> blue = player_cards(result["blue"].as<std::string>(), Blue);
     std::vector<Card> red = player_cards(result["red"].as<std::string>(), Red);
+    if (blue.size() != 5 && blue.size() != red.size())
+        throw std::runtime_error("Not enough cards supplied, each team must have 5 cards");
     std::unordered_map<Rule, bool> rules = {{Same, result["same"].as<bool>()},
                                             {SameWall, result["wall"].as<bool>()},
                                             {Plus, result["plus"].as<bool>()},
@@ -89,6 +91,9 @@ void TripleTriad::open_game(cxxopts::ParseResult const &result) {
 
 void TripleTriad::close_game(cxxopts::ParseResult const &result) {
     std::vector<Card> blue = player_cards(result["blue"].as<std::string>(), Blue);
+
+    if (blue.size() != 5) throw std::runtime_error("Not enough cards supplied, each team must have 5 cards");
+
     std::unordered_map<Rule, bool> rules = {{Same, result["same"].as<bool>()},
                                             {SameWall, result["wall"].as<bool>()},
                                             {Plus, result["plus"].as<bool>()},
