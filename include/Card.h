@@ -1,7 +1,7 @@
 #ifndef TRIPLETRIAD_CARD_H
 #define TRIPLETRIAD_CARD_H
 
-#include "TripleTriad.h"
+#include "Utils.h"
 
 namespace TripleTriad {
     class Position;

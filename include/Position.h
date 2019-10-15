@@ -1,8 +1,8 @@
 #ifndef TRIPLETRIAD_POSITION_H
 #define TRIPLETRIAD_POSITION_H
-#include "TripleTriad.h"
-#include "Card.h"
 
+#include "Utils.h"
+#include "Card.h"
 namespace TripleTriad {
     struct Position {
         Position() = default;

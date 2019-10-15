@@ -1,4 +1,5 @@
 #include "Board.h"
+#include "TripleTriad.h"
 
 TripleTriad::Board::Board(Rules const &rules, std::string const &elements) {
     _same = rules.at(Same);
@@ -38,11 +39,9 @@ std::vector<TripleTriad::Position*> TripleTriad::Board::_getSame(Card card, int 
     if (!_same) return output;
     int same_count = 0;
     for (auto const &i : _adjacent[position]) {
-        if (i->empty()) continue;
-        if (card == *i->card()) {
-            ++same_count;
-            if (i->card()->team() != card.team()) output.emplace_back(i);
-        }
+        if (i->empty() || !(card == *i->card())) continue;
+        ++same_count;
+        if (i->card()->team() != card.team()) output.emplace_back(i);
     }
     same_count += _sameWall && !output.empty() && card.isWall();
     if (same_count < 2) output.clear();
@@ -64,13 +63,11 @@ std::vector<TripleTriad::Position*> TripleTriad::Board::_getPlus(Card card, int 
     for (int i = 0; i < 3; ++i) {
         if (!total[i]) continue;
         for (int j = i + 1; j < 4; ++j) {
-            if (!total[j]) continue;
-            if (total[i] == total[j]) {
-                if (adj[i]->card()->team() == card.team())
-                    set.emplace( adj[i] );
-                if (adj[j]->card()->team() == card.team())
-                    set.emplace( adj[j] );
-            }
+            if (!total[j] || total[i] != total[j]) continue;
+            if (adj[i]->card()->team() == card.team())
+                set.emplace( adj[i] );
+            if (adj[j]->card()->team() == card.team())
+                set.emplace( adj[j] );
         }
     }
     output.assign( set.begin(), set.end() );
@@ -85,9 +82,7 @@ std::vector<TripleTriad::Position*> TripleTriad::Board::_getDefaultFlips(Card ca
     for (auto const &i : _adjacent[position]) {
         if (!i->empty() && card > *i->card() && card.team() != i->card()->team()) {
             output.emplace_back(i);
-//            std::cout<<i->card()->name()<<std::endl;
         }
-
     }
     return output;
 }
@@ -154,21 +149,21 @@ void TripleTriad::Board::_flip(std::set<Position *> const &positions, Team team)
 float TripleTriad::Board::_computeHint(Card const &card, int pos, std::vector<Card> const &enemy) {
     auto state = *this;
     auto score = (float)state.play(card, pos);
-    auto blanks = state._getBlanks();
+    auto blanks = state.getBlanks();
     auto enemy_card = enemy.empty() ? Card::cardList() : &enemy[0];
-    int size = enemy.empty() ? 109 : (int)enemy.size();
+    auto size = enemy.empty() ? 109.0 : static_cast<double>(enemy.size());
     for (int c = 0; c < size; ++c, ++enemy_card) {
-        auto max = 0;
+        float max = 0;
         for (auto const &i : blanks) {
-            auto s = (int)state._getFlips(*enemy_card, i->idx()).size();
+            auto s = (float)state._getFlips(*enemy_card, i->idx()).size();
             if (s > max) max = s;
         }
-        score -= (float)max / (float)size;
+        score -= max / size;
     }
     return score;
 }
 
-std::vector<TripleTriad::Position const*> TripleTriad::Board::_getBlanks() const {
+std::vector<TripleTriad::Position const*> TripleTriad::Board::getBlanks() const {
     std::vector<Position const*> blanks;
     for (int i = 0; i < 9; ++i) {
         if (_pos[i].empty()) blanks.emplace_back(_pos + i);
@@ -182,7 +177,7 @@ std::string TripleTriad::Board::hint(std::vector<Card> const &player, std::vecto
     } c;
 
     std::stringstream out_stream;
-    auto blanks = _getBlanks();
+    auto blanks = getBlanks();
     std::vector<hint_t> hints;
     for (auto const &blank_pos : blanks) {
         for (auto const &card : player) {

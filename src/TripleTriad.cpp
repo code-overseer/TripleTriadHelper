@@ -162,6 +162,18 @@ void TripleTriad::test_open() {
     std::cout<<game.score(Red)<<':'<<game.score(Blue)<<std::endl;
 }
 
+std::string TripleTriad::get_hint(Board const &main, std::vector<Card> const &player, std::vector<Card> const &enemy) {
+    static struct comparer_t {
+        bool operator() (hint_t const &i, hint_t const &j) { return (i.score > j.score);}
+    } compare;
+    bool used_p[player.size()];
+    bool used_e[enemy.size()];
+    memset(used_p, 0, player.size());
+    memset(used_e, 0, enemy.size());
+
+
+}
+
 
 
 
