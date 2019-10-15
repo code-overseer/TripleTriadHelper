@@ -2,9 +2,9 @@
 #include "Position.h"
 #include "Card.h"
 
-void TripleTriad::Position::place(Card const &card) {
+void TripleTriad::Position::place(Card &&card) {
     _empty = false;
-    _card = card;
+    _card = std::move(card);
     _card.place(*this);
 }
 

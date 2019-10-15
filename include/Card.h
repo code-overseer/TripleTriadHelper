@@ -17,7 +17,7 @@ namespace TripleTriad {
         static std::unordered_map<std::string, Card const*> const& cardFinder();
         static Card const& cardFinder(std::string const &name);
         Card() = default;
-        Card(char const* card_name, Team team);
+        Card(const std::string &card_name, Team team);
         Card(Card const &other) = default;
         Card(Card &&other) noexcept;
         bool isWall() const;

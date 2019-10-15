@@ -28,7 +28,7 @@ TripleTriad::Card &TripleTriad::Card::operator=(const TripleTriad::Card &other) 
     return *this;
 }
 
-TripleTriad::Card::Card(char const *card_name, Team team) {
+TripleTriad::Card::Card(const std::string &card_name, Team team) {
     *this = cardFinder(card_name);
     _team = team;
 }

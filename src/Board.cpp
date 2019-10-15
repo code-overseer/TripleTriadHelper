@@ -1,7 +1,7 @@
 #include "Board.h"
 #include "TripleTriad.h"
 
-TripleTriad::Board::Board(Rules const &rules, std::string const &elements) {
+TripleTriad::Board::Board(Rules const &rules, std::string const &elements, Team turn) : _turn(turn) {
     _same = rules.at(Same);
     _sameWall = rules.at(SameWall);
     _plus = rules.at(Plus);
@@ -75,8 +75,8 @@ std::vector<TripleTriad::Position*> TripleTriad::Board::_getPlus(Card card, int 
     return output;
 }
 
-std::vector<TripleTriad::Position*> TripleTriad::Board::_getDefaultFlips(Card card, int position, bool flip) const {
-    if (flip) card.flip((Team)!card.team());
+std::vector<TripleTriad::Position*> TripleTriad::Board::_getDefaultFlips(Card card, int position, bool combo) const {
+    if (combo) card.flip(card.team() == Red ? Blue : Red);
     card.place(_pos[position]);
     std::vector<TripleTriad::Position*> output;
     for (auto const &i : _adjacent[position]) {
@@ -118,14 +118,16 @@ _elemental(other._elemental), _plus(other._plus), _score(other._score) {
     _computeAdjacents();
 }
 
-int TripleTriad::Board::play(const TripleTriad::Card &card, int pos) {
-    auto flips = _getFlips(card, pos);
-    _pos[pos].place(card);
-    _flip(flips, card.team());
-    return flips.size();
+int TripleTriad::Board::play(std::string const &card, int pos) {
+    Card played(card, _turn);
+    auto flips = _getFlips(played, pos);
+    _pos[pos].place(std::move(played));
+    _flip(flips);
+    _turn = _turn == Red ? Blue : Red;
+    return static_cast<int>(flips.size()) * ((_turn == Red) - (_turn == Blue));
 }
 
-std::set<TripleTriad::Position*> TripleTriad::Board::_getFlips(const TripleTriad::Card &card, int position) const {
+std::set<TripleTriad::Position*> TripleTriad::Board::_getFlips(const Card &card, int position) const {
     std::vector<Position*> flips;
     std::set<Position*> output;
     flips = _getSame(card, position);
@@ -133,34 +135,16 @@ std::set<TripleTriad::Position*> TripleTriad::Board::_getFlips(const TripleTriad
     flips = _getPlus(card, position);
     output.insert(flips.begin(), flips.end());
     flips = _getDefaultFlips(card, position);
-
     output.insert(flips.begin(), flips.end());
     return output;
 }
-void TripleTriad::Board::_flip(std::set<Position *> const &positions, Team team) {
+void TripleTriad::Board::_flip(std::set<Position *> const &positions) {
     for (auto const &i : positions) {
         static int j = 0;
-        j = i->flip(team);
-        _score[team] += j;
-        _score[team == Red ? Blue : Red] -= j;
+        j = i->flip(_turn);
+        _score[_turn] += j;
+        _score[_turn == Red ? Blue : Red] -= j;
     }
-}
-
-float TripleTriad::Board::_computeHint(Card const &card, int pos, std::vector<Card> const &enemy) {
-    auto state = *this;
-    auto score = (float)state.play(card, pos);
-    auto blanks = state.getBlanks();
-    auto enemy_card = enemy.empty() ? Card::cardList() : &enemy[0];
-    auto size = enemy.empty() ? 109.0 : static_cast<double>(enemy.size());
-    for (int c = 0; c < size; ++c, ++enemy_card) {
-        float max = 0;
-        for (auto const &i : blanks) {
-            auto s = (float)state._getFlips(*enemy_card, i->idx()).size();
-            if (s > max) max = s;
-        }
-        score -= max / size;
-    }
-    return score;
 }
 
 std::vector<TripleTriad::Position const*> TripleTriad::Board::getBlanks() const {
@@ -169,38 +153,6 @@ std::vector<TripleTriad::Position const*> TripleTriad::Board::getBlanks() const 
         if (_pos[i].empty()) blanks.emplace_back(_pos + i);
     }
     return blanks;
-}
-
-std::string TripleTriad::Board::hint(std::vector<Card> const &player, std::vector<Card> const &enemy) {
-    static struct compare {
-        bool operator() (hint_t const &i, hint_t const &j) { return (i.score > j.score);}
-    } c;
-
-    std::stringstream out_stream;
-    auto blanks = getBlanks();
-    std::vector<hint_t> hints;
-    for (auto const &blank_pos : blanks) {
-        for (auto const &card : player) {
-            hints.emplace_back((hint_t){card.name(), blank_pos->idx(), _computeHint(card, blank_pos->idx(), enemy) });
-        }
-    }
-    std::sort(hints.begin(), hints.end(), c);
-
-    out_stream << std::left << std::setw(6) << std::setfill(' ') << "No.";
-    out_stream << std::left << std::setw(15) << std::setfill(' ') << "Card";
-    out_stream << std::left << std::setw(9) << std::setfill(' ') << "Position";
-    out_stream << std::left << std::setw(15) << std::setfill(' ') << "Potential";
-    out_stream << '\n';
-
-    for (int i = 0; i < 9 && i < (int)hints.size(); ++i) {
-        out_stream << std::left << std::setw(6) << std::setfill(' ') << i + 1;
-        out_stream << std::left << std::setw(15) << std::setfill(' ') << hints[i].name;
-        out_stream << std::left << std::setw(9) << std::setfill(' ') << hints[i].position;
-        out_stream << std::left << std::setw(15) << std::setfill(' ') << hints[i].score;
-        out_stream << '\n';
-    }
-
-    return out_stream.str();
 }
 
 

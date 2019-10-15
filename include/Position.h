@@ -11,7 +11,7 @@ namespace TripleTriad {
         Position& operator=(Position &&other) noexcept;
         Position& operator=(Position const &other);
         int flip(Team team);
-        void place(TripleTriad::Card const &card);
+        void place(Card &&card);
         TripleTriad::Card const* card() const;
         inline bool empty() const { return _empty; }
         inline int idx() const { return _index; }

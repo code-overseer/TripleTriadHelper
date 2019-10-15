@@ -3,6 +3,7 @@
 #include "TripleTriad.h"
 #include "Card.h"
 #include "GUI.h"
+#include "Node.h"
 
 cxxopts::Options TripleTriad::option_parser() {
     using namespace cxxopts;
@@ -45,8 +46,8 @@ void TripleTriad::open_game(cxxopts::ParseResult const &result) {
                                             {SameWall, result["wall"].as<bool>()},
                                             {Plus, result["plus"].as<bool>()},
                                             {Elemental, result["elemental"].count()}};
-    Board game(rules, rules.at(Elemental) ? result["elemental"].as<std::string>() : "");
     Team turn = toupper(result["turn"].as<char>()) == 'R' ? Red : Blue;
+    Board game(rules, rules.at(Elemental) ? result["elemental"].as<std::string>() : "", turn);
     GUI::init();
     int plays = 0;
     char input[64];
@@ -63,17 +64,17 @@ void TripleTriad::open_game(cxxopts::ParseResult const &result) {
         clrtoeol();
         try {
             if (turn == Blue && !strcmp(input, "hint")) {
-                GUI::showHint(game.hint(blue, red));
+//                GUI::showHint(game.hint(blue, red));
                 move(37, 0);
             } else if (strlen(input) < 4) {
                 card_no = atoi(strtok(input, ":"));
                 pos = atoi(strtok(nullptr, ":"));
                 if (turn == Red) {
-                    game.play(red[card_no], pos);
+                    game.play(red[card_no].name(), pos);
                     red.erase(red.begin() + card_no);
                     turn = Blue;
                 } else {
-                    game.play(blue[card_no], pos);
+                    game.play(blue[card_no].name(), pos);
                     blue.erase(blue.begin() + card_no);
                     turn = Red;
                 }
@@ -98,8 +99,8 @@ void TripleTriad::close_game(cxxopts::ParseResult const &result) {
                                             {SameWall, result["wall"].as<bool>()},
                                             {Plus, result["plus"].as<bool>()},
                                             {Elemental, result["elemental"].count()}};
-    Board game(rules, rules.at(Elemental) ? result["elemental"].as<std::string>() : "");
     Team turn = toupper(result["turn"].as<char>()) == 'R' ? Red : Blue;
+    Board game(rules, rules.at(Elemental) ? result["elemental"].as<std::string>() : "", turn);
     GUI::init();
     int plays = 0;
     int red_cards = 5;
@@ -117,22 +118,19 @@ void TripleTriad::close_game(cxxopts::ParseResult const &result) {
         move(37, 0);
         clrtoeol();
         try {
-            if (turn == Blue && !strcmp(input, "hint")) {
-                GUI::showHint(game.hint(blue));
+            if (game.turn() == Blue && !strcmp(input, "hint")) {
+//                GUI::showHint(game.hint(blue));
                 move(37, 0);
-            } else if (turn == Blue && strlen(input) < 4) {
+            } else if (game.turn() == Blue && strlen(input) < 4) {
                 card_no = atoi(strtok(input, ":"));
                 pos = atoi(strtok(nullptr, ":"));
-                game.play(blue[card_no], pos);
+                game.play(blue[card_no].name(), pos);
                 ++plays;
                 blue.erase(blue.begin() + card_no);
-                turn = Red;
-            } else if (turn == Red) {
-                auto c = Card(strtok(input, ":"), Red);
-                game.play(c, atoi(strtok(nullptr, ":")));
+            } else if (game.turn() == Red) {
+                game.play(strtok(input, ":"), atoi(strtok(nullptr, ":")));
                 ++plays;
                 --red_cards;
-                turn = Blue;
             } else {
                 throw std::exception();
             }
@@ -153,24 +151,71 @@ void TripleTriad::test_open() {
                                             {SameWall, true},
                                             {Plus, false},
                                             {Elemental, false}};
-    Board game(rules, "");
-    game.play(red[0], 0);
-    game.play(blue[1], 3);
-    game.play(red[3], 7);
-    game.play(blue[4], 8);
-    game.play(red[4], 4);
+    Board game(rules, "", Red);
+    game.play(red[0].name(), 0);
+    game.play(blue[1].name(), 3);
+    game.play(red[3].name(), 7);
+    game.play(blue[4].name(), 8);
+    game.play(red[4].name(), 4);
     std::cout<<game.score(Red)<<':'<<game.score(Blue)<<std::endl;
 }
 
 std::string TripleTriad::get_hint(Board const &main, std::vector<Card> const &player, std::vector<Card> const &enemy) {
-    static struct comparer_t {
-        bool operator() (hint_t const &i, hint_t const &j) { return (i.score > j.score);}
-    } compare;
-    bool used_p[player.size()];
-    bool used_e[enemy.size()];
-    memset(used_p, 0, player.size());
-    memset(used_e, 0, enemy.size());
+    static auto cmp = [](const Node& left, const Node& right) { return left.score > right.score; };
+    std::unordered_map<Team, std::vector<Card> const &> cards = {{Blue, player}, {Red, enemy}};
+    Node previous("root", player, enemy, main);
+    std::priority_queue<Node, std::vector<Node>, decltype(cmp)> branches(cmp);
+    std::vector<Node> results;
+    auto blanks = previous.board.getBlanks();
+    for (auto const &blank : blanks) {
+        int card_idx = 0;
+        auto turn = previous.turn();
+        for (auto const &card : cards.at(turn)) {
+            if (!previous.used.at(turn)[card_idx])
+                branches.push(previous.forward(card.name(), card_idx, blank->idx()));
+            ++card_idx;
+        }
+    }
 
+    while (!branches.empty()) {
+        auto const &max = branches.top();
+        if (max.score < -0.5 && max.turn() == Red) {
+            branches.pop();
+        } else if (!max.total.at(Blue) || !max.total.at(Red) || max.turns(Blue) >= 3
+        || (max.score > 3 && max.turn() == Blue)) {
+            results.emplace_back(max);
+            branches.pop();
+        } else {
+            previous = max;
+            blanks = previous.board.getBlanks();
+            for (auto const &blank : blanks) {
+                int card_idx = 0;
+                auto turn = previous.turn();
+                for (auto const &card : cards.at(turn)) {
+                    if (!previous.used.at(turn)[card_idx])
+                        branches.push(previous.forward(previous.name, card_idx, blank->idx()));
+                    ++card_idx;
+                }
+            }
+        }
+    }
+    std::sort(results.begin(), results.end(), cmp);
+    std::stringstream out_stream;
+    out_stream << std::left << std::setw(6) << std::setfill(' ') << "No.";
+    out_stream << std::left << std::setw(15) << std::setfill(' ') << "Card";
+    out_stream << std::left << std::setw(9) << std::setfill(' ') << "Position";
+    out_stream << std::left << std::setw(15) << std::setfill(' ') << "Potential";
+    out_stream << '\n';
+
+    for (int i = 0; i < 9 && i < (int)results.size(); ++i) {
+        out_stream << std::left << std::setw(6) << std::setfill(' ') << i + 1;
+        out_stream << std::left << std::setw(15) << std::setfill(' ') << results[i].name;
+        out_stream << std::left << std::setw(9) << std::setfill(' ') << results[i].position;
+        out_stream << std::left << std::setw(15) << std::setfill(' ') << results[i].score;
+        out_stream << '\n';
+    }
+
+    return out_stream.str();
 
 }
 
