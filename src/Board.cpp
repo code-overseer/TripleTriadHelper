@@ -16,7 +16,7 @@ TripleTriad::Board::Board(Rules const &rules, std::string const &elements, Team 
 }
 
 void TripleTriad::Board::_computeAdjacents() {
-    static int adj[] = {3, -3, 1, -1};
+    static int const adj[4] = {3, -3, 1, -1};
     for (int i = 0; i < 9; ++i) {
         bool cond[4];
         int tmp = i / 3;
@@ -113,17 +113,23 @@ void TripleTriad::Board::_getCombo(int position, std::vector<TripleTriad::Positi
 }
 
 TripleTriad::Board::Board(const TripleTriad::Board &other) : _same(other._same), _sameWall(other._sameWall),
-_elemental(other._elemental), _plus(other._plus), _score(other._score) {
+_elemental(other._elemental), _plus(other._plus), _score(other._score), _turn(other._turn) {
     for (int i = 0; i < 9; ++i) _pos[i] = other._pos[i];
     _computeAdjacents();
 }
 
-int TripleTriad::Board::play(std::string const &card, int pos) {
-    Card played(card, _turn);
-    auto flips = _getFlips(played, pos);
-    _pos[pos].place(std::move(played));
+
+
+int TripleTriad::Board::play(Card const &card, int pos) {
+    auto flips = _getFlips(card, pos);
+    _pos[pos].place(card);
     _flip(flips);
     _turn = _turn == Red ? Blue : Red;
+    return static_cast<int>(flips.size()) * ((_turn == Red) - (_turn == Blue));
+}
+
+int TripleTriad::Board::try_play(Card const &card, int pos) const {
+    auto flips = _getFlips(card, pos);
     return static_cast<int>(flips.size()) * ((_turn == Red) - (_turn == Blue));
 }
 
@@ -138,6 +144,7 @@ std::set<TripleTriad::Position*> TripleTriad::Board::_getFlips(const Card &card,
     output.insert(flips.begin(), flips.end());
     return output;
 }
+
 void TripleTriad::Board::_flip(std::set<Position *> const &positions) {
     for (auto const &i : positions) {
         static int j = 0;
@@ -154,6 +161,7 @@ std::vector<TripleTriad::Position const*> TripleTriad::Board::getBlanks() const 
     }
     return blanks;
 }
+
 
 
 

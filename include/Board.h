@@ -28,7 +28,8 @@ namespace TripleTriad {
         Board(Rules const &rules, std::string const &elements, Team turn);
         Board(Board const &other);
         std::vector<Position const*> getBlanks() const;
-        int play(std::string const &card, int pos);
+        int play(Card const &card, int pos);
+        int try_play(Card const &card, int pos) const;
         inline int score(Team team) const { return _score.at(team); }
         inline Card const* card(int i) const { return _pos[i].card(); }
         inline Element element(int i) const { return _pos[i].element(); }

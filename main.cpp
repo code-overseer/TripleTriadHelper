@@ -6,7 +6,8 @@ int main(int argc, char* argv[]) {
     auto options = option_parser();
     auto result = options.parse(argc, argv);
 //    test_open();
-//    return 0;
+    test_hint();
+    return 0;
     std::vector<Card> blue = player_cards(result["blue"].as<std::string>(), Blue);
     bool isOpen = result["red"].count();
     if (isOpen) {

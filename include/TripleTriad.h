@@ -3,6 +3,8 @@
 
 #include "Utils.h"
 namespace TripleTriad {
+    class Board;
+    class Card;
     cxxopts::Options option_parser();
     std::vector<Card> player_cards(std::string const& names, Team team);
     void open_game(cxxopts::ParseResult const &result);
@@ -10,6 +12,7 @@ namespace TripleTriad {
     std::string get_hint(Board const &main, std::vector<Card> const &player, std::vector<Card> const &enemy);
 
     void test_open();
+    void test_hint();
 }
 
 

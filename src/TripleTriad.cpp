@@ -1,5 +1,5 @@
-#include <Board.h>
 #include <ncurses.h>
+#include "Board.h"
 #include "TripleTriad.h"
 #include "Card.h"
 #include "GUI.h"
@@ -63,20 +63,18 @@ void TripleTriad::open_game(cxxopts::ParseResult const &result) {
         move(37, 0);
         clrtoeol();
         try {
-            if (turn == Blue && !strcmp(input, "hint")) {
-//                GUI::showHint(game.hint(blue, red));
+            if (game.turn() == Blue && !strcmp(input, "hint")) {
+                GUI::showHint(get_hint(game, blue, red));
                 move(37, 0);
             } else if (strlen(input) < 4) {
                 card_no = atoi(strtok(input, ":"));
                 pos = atoi(strtok(nullptr, ":"));
-                if (turn == Red) {
-                    game.play(red[card_no].name(), pos);
+                if (game.turn() == Red) {
+                    game.play(red[card_no], pos);
                     red.erase(red.begin() + card_no);
-                    turn = Blue;
                 } else {
-                    game.play(blue[card_no].name(), pos);
+                    game.play(blue[card_no], pos);
                     blue.erase(blue.begin() + card_no);
-                    turn = Red;
                 }
                 ++plays;
             } else {
@@ -124,11 +122,11 @@ void TripleTriad::close_game(cxxopts::ParseResult const &result) {
             } else if (game.turn() == Blue && strlen(input) < 4) {
                 card_no = atoi(strtok(input, ":"));
                 pos = atoi(strtok(nullptr, ":"));
-                game.play(blue[card_no].name(), pos);
+                game.play(blue[card_no], pos);
                 ++plays;
                 blue.erase(blue.begin() + card_no);
             } else if (game.turn() == Red) {
-                game.play(strtok(input, ":"), atoi(strtok(nullptr, ":")));
+                game.play(Card(strtok(input, ":"), Red), atoi(strtok(nullptr, ":")));
                 ++plays;
                 --red_cards;
             } else {
@@ -152,48 +150,54 @@ void TripleTriad::test_open() {
                                             {Plus, false},
                                             {Elemental, false}};
     Board game(rules, "", Red);
-    game.play(red[0].name(), 0);
-    game.play(blue[1].name(), 3);
-    game.play(red[3].name(), 7);
-    game.play(blue[4].name(), 8);
-    game.play(red[4].name(), 4);
+    game.play(red[0], 0);
+    game.play(blue[1], 3);
+    game.play(red[3], 7);
+    game.play(blue[4], 8);
+    game.play(red[4], 4);
     std::cout<<game.score(Red)<<':'<<game.score(Blue)<<std::endl;
 }
 
 std::string TripleTriad::get_hint(Board const &main, std::vector<Card> const &player, std::vector<Card> const &enemy) {
-    static auto cmp = [](const Node& left, const Node& right) { return left.score > right.score; };
+    static auto cmp = [](const Node& left, const Node& right) { return left.value() > right.value(); };
     std::unordered_map<Team, std::vector<Card> const &> cards = {{Blue, player}, {Red, enemy}};
     Node previous("root", player, enemy, main);
     std::priority_queue<Node, std::vector<Node>, decltype(cmp)> branches(cmp);
     std::vector<Node> results;
     auto blanks = previous.board.getBlanks();
-    for (auto const &blank : blanks) {
-        int card_idx = 0;
-        auto turn = previous.turn();
-        for (auto const &card : cards.at(turn)) {
-            if (!previous.used.at(turn)[card_idx])
-                branches.push(previous.forward(card.name(), card_idx, blank->idx()));
-            ++card_idx;
+    int card_idx = 0;
+    for (auto const &card : cards.at(Blue)) {
+        for (auto const &blank : blanks) {
+            if (!previous.used.at(Blue)[card_idx]) {
+                branches.push(previous.forward(card, card_idx, blank->idx(), cards.at(Red)));
+            }
         }
+        ++card_idx;
     }
 
     while (!branches.empty()) {
         auto const &max = branches.top();
-        if (max.score < -0.5 && max.turn() == Red) {
+        if (max.value() < 0 && max.turns(Blue) > 1) {
             branches.pop();
-        } else if (!max.total.at(Blue) || !max.total.at(Red) || max.turns(Blue) >= 3
-        || (max.score > 3 && max.turn() == Blue)) {
+        } else if (!max.total.at(Blue) || !max.total.at(Red) || max.turns(Blue) > 2 ||
+        (max.value() > 2 && max.turn() == Blue )) {
             results.emplace_back(max);
             branches.pop();
+        } else if (max.turn() == Red) {
+            previous = max;
+            branches.pop();
+            for (int i = 0; i < previous.total.at(Red); ++i) {
+                branches.push(previous.red(i, enemy));
+            }
         } else {
             previous = max;
+            branches.pop();
             blanks = previous.board.getBlanks();
             for (auto const &blank : blanks) {
-                int card_idx = 0;
-                auto turn = previous.turn();
-                for (auto const &card : cards.at(turn)) {
-                    if (!previous.used.at(turn)[card_idx])
-                        branches.push(previous.forward(previous.name, card_idx, blank->idx()));
+                card_idx = 0;
+                for (auto const &card : cards.at(Blue)) {
+                    if (!previous.used.at(Blue)[card_idx])
+                        branches.push(previous.forward(card, card_idx, blank->idx(), cards.at(Red)));
                     ++card_idx;
                 }
             }
@@ -211,11 +215,26 @@ std::string TripleTriad::get_hint(Board const &main, std::vector<Card> const &pl
         out_stream << std::left << std::setw(6) << std::setfill(' ') << i + 1;
         out_stream << std::left << std::setw(15) << std::setfill(' ') << results[i].name;
         out_stream << std::left << std::setw(9) << std::setfill(' ') << results[i].position;
-        out_stream << std::left << std::setw(15) << std::setfill(' ') << results[i].score;
+        out_stream << std::left << std::setw(15) << std::setfill(' ') << results[i].value();
         out_stream << '\n';
     }
 
     return out_stream.str();
+
+}
+
+void TripleTriad::test_hint() {
+    std::vector<Card> blue = player_cards("Edea,Quistis,Bahamut,Odin,Leviathan", Blue);
+    std::vector<Card> red = player_cards("Squall,Blitz,Elastoid,GIM47N,Adamantoise", Red);
+    std::unordered_map<Rule, bool> rules = {{Same, true},
+                                            {SameWall, true},
+                                            {Plus, false},
+                                            {Elemental, false}};
+
+    Board game(rules, "", Red);
+    game.play(red[0], 0);
+    red.erase(red.begin() + 0);
+    std::cout << get_hint(game, blue, red) << std::endl;
 
 }
 

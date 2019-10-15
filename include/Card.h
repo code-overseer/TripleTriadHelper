@@ -4,6 +4,7 @@
 #include "Utils.h"
 
 namespace TripleTriad {
+    void test_open();
     class Position;
     class Card {
         std::string _name;
