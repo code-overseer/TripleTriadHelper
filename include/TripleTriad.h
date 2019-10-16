@@ -6,7 +6,7 @@ namespace TripleTriad {
     class Board;
     class Card;
     cxxopts::Options option_parser();
-    std::vector<Card> player_cards(std::string const& names, Team team);
+    std::vector<std::string> player_cards(std::string const &names);
     void open_game(cxxopts::ParseResult const &result);
     void close_game(cxxopts::ParseResult const &result);
     std::string get_hint(Board const &main, std::vector<Card> const &player, std::vector<Card> const &enemy);

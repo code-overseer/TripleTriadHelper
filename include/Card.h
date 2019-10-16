@@ -18,6 +18,10 @@ namespace TripleTriad {
         inline Element const &element() const { return _element; }
         inline std::string const& name() const { return _name; }
         inline int const* const score() const { return _score; }
+        inline int up() const { return _score[0]; }
+        inline int down() const { return _score[1]; }
+        inline int right() const { return _score[2]; }
+        inline int left() const { return _score[3]; }
     };
 
 }

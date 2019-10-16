@@ -1,7 +1,8 @@
 #include "Board.h"
 #include "TripleTriad.h"
 
-TripleTriad::Board::Board(Rules &&rules, std::string const &elements, Team turn) : _turn(turn), _rules(std::move(rules)) {
+TripleTriad::Board::Board(Rules &&rules, std::string const &elements, Team turn) : _turn(turn),
+_rules(std::move(rules)), _flips() {
     if (rules.at(Elemental)) {
         if (elements.size() != 9) throw std::runtime_error("Expected 9 elements");
         auto j = elements.begin();
@@ -13,7 +14,7 @@ TripleTriad::Board::Board(Rules &&rules, std::string const &elements, Team turn)
 }
 
 TripleTriad::Board::Board(const TripleTriad::Board &other) : _rules(other._rules), _turn(other._turn),
-                                                             _score(other._score), _pos(other._pos) {
+_score(other._score), _pos(other._pos), _flips() {
     _adjacent();
 }
 
@@ -29,14 +30,12 @@ void TripleTriad::Board::_adjacent() {
              {_pos.data() + 5, _pos.data() + 7}};
 }
 
-std::set<TripleTriad::Position *> TripleTriad::Board::_getFlips(std::string const &card_name, int pos) {
-    auto output = std::set<Position *>();
-    _pos[pos].check(card_name, _turn);
-    _getDefaultFlips(output, pos);
-    _getSameFlips(output, pos);
-    _getPlusFlips(output, pos);
-
-    return output;
+void TripleTriad::Board::_getFlips(std::string const &card_name, int pos) {
+    if (card_name == _flips.card && pos == _flips.pos) return;
+    _flips = flips_t();
+    _getDefaultFlips(_flips.flips, pos);
+    _getSameFlips(_flips.flips, pos);
+    _getPlusFlips(_flips.flips, pos);
 }
 
 void TripleTriad::Board::_getDefaultFlips(std::set<Position *> &flips, int pos) const {
@@ -92,6 +91,30 @@ void TripleTriad::Board::_getPlusFlips(std::set<Position *> &flips, int pos) con
     for (auto const &card : plus) {
         _getComboFlips(flips, card->idx(), visited);
     }
+}
+
+int TripleTriad::Board::play(std::string const &card, int pos) {
+    _pos[pos].place(card, _turn);
+    _getFlips(card, pos);
+    for (auto const &i : _flips.flips) i->_flip();
+    _turn = _turn == Red ? Blue : Red;
+    auto out = static_cast<int>(_flips.flips.size()) * ((_turn == Red) - (_turn == Blue));
+    _flips = flips_t();
+    return out;
+}
+
+int TripleTriad::Board::calculate(std::string const &card, int pos) {
+    _pos[pos].check(card, _turn);
+    _getFlips(card, pos);
+    return static_cast<int>(_flips.flips.size()) * ((_turn == Red) - (_turn == Blue));
+}
+
+std::list<TripleTriad::Position *> TripleTriad::Board::getBlanks() const {
+    auto output = std::list<Position *>();
+    for (auto i = 0; i < 9; ++i) {
+        if (_pos[i].empty()) output.emplace_back(&_pos[i]);
+    }
+    return output;
 }
 
 

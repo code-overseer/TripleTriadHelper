@@ -3,6 +3,8 @@
 
 #include "Utils.h"
 #include "Card.h"
+#include "GUI.h"
+
 namespace TripleTriad {
     struct Position {
         void place(std::string const &card_name, Team team);
@@ -29,6 +31,7 @@ namespace TripleTriad {
         ASSIGN(==)
         #undef ASSIGN
         friend int operator+(TripleTriad::Position const& lhs, TripleTriad::Position const& rhs);
+        friend void GUI::drawBlock(std::pair<int, int> const &root, TripleTriad::Position const &pos);
     private:
         inline void _flip() { _team = _team == Red ? Blue : Red; }
 
@@ -51,6 +54,7 @@ namespace TripleTriad {
         int const *_score = nullptr;
         std::string _name;
         Element _element = None;
+        Element _cardElement = None;
         int _index = -1;
         bool _empty = true;
         Team _team = Blue;

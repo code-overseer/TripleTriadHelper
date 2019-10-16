@@ -15,7 +15,8 @@ void TripleTriad::Position::check(std::string const &card_name, Team team) {
     _name = card_name;
     auto const &card = Card::getCard(card_name);
     _score = card.score();
-    _elemental = _element != None * ((_element == card.element()) - (_element != card.element()));
+    _cardElement = card.element();
+    _elemental = _element != None * ((_element == _cardElement) - (_element != _cardElement));
 }
 
 #define ASSIGN(OP) \
