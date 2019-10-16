@@ -10,7 +10,12 @@ namespace TripleTriad {
         Team _turn = Blue;
         Score _score = { {Red, 5}, {Blue, 5} };
         std::vector<Position> _pos = std::vector<Position>(static_cast<size_t>(9));
-        std::vector<std::vector<Position*>> _adj;
+        std::vector<std::list<Position*>> _adj;
+        std::set<Position*> _getFlips(std::string const &card_name, int pos);
+        void _getDefaultFlips(std::set<Position *> &flips, int pos) const;
+        void _getComboFlips(std::set<Position *> &flips, int pos, bool visited[9]) const;
+        void _getSameFlips(std::set<Position *> &flips, int pos) const;
+        void _getPlusFlips(std::set<Position *> &flips, int pos) const;
         void _adjacent();
     public:
         Board() = default;

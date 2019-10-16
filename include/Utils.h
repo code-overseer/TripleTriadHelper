@@ -18,6 +18,7 @@
 #include<map>
 #include<utility>
 #include<iomanip>
+#include<list>
 #include "cxxopts.hpp"
 
 namespace TripleTriad {
