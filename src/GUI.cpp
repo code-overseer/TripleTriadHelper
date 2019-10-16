@@ -129,23 +129,22 @@ void TripleTriad::GUI::changeTurn(TripleTriad::Team team) {
     mvaddch(0, (team == Red ? 32 : 3), ' ');
 }
 
-void TripleTriad::GUI::draw(const TripleTriad::Board &board, TripleTriad::Team turn, const std::vector<Card> &blue,
+void TripleTriad::GUI::draw(const TripleTriad::Board &board, const std::vector<Card> &blue,
                             const std::vector<Card> &red) {
     clear();
     drawBoard(board);
     drawPlayerList(blue, Blue);
     drawPlayerList(red, Red);
-    changeTurn(turn);
+    changeTurn(board.turn());
     refresh();
 }
 
-void TripleTriad::GUI::draw(const TripleTriad::Board &board, TripleTriad::Team turn, const std::vector<Card> &blue,
-                            int unknowns) {
+void TripleTriad::GUI::draw(const TripleTriad::Board &board, const std::vector<Card> &blue, int unknowns) {
     clear();
     drawBoard(board);
     drawPlayerList(blue, Blue);
     drawPlayerList(unknowns);
-    changeTurn(turn);
+    changeTurn(board.turn());
     refresh();
 }
 

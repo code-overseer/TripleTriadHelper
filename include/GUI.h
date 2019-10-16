@@ -23,8 +23,8 @@ namespace TripleTriad {
         void changeTurn(Team team);
         void invalid_input(char const* input);
         void showHint(std::string const& hint);
-        void draw(Board const &board, Team turn, std::vector<Card> const &blue, std::vector<Card> const &red);
-        void draw(Board const &board, Team turn, std::vector<Card> const &blue, int unknowns);
+        void draw(Board const &board, std::vector<Card> const &blue, std::vector<Card> const &red);
+        void draw(Board const &board, std::vector<Card> const &blue, int unknowns);
     };
 }
 

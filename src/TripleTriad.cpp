@@ -54,7 +54,7 @@ void TripleTriad::open_game(cxxopts::ParseResult const &result) {
     int card_no;
     int pos;
     while (plays < 9) {
-        GUI::draw(game, turn, blue, red);
+        GUI::draw(game, blue, red);
         move(37, 0);
         echo();
         getnstr(input, 5);
@@ -107,7 +107,7 @@ void TripleTriad::close_game(cxxopts::ParseResult const &result) {
     int card_no;
     int pos;
     while (plays < 9) {
-        GUI::draw(game, turn, blue, red_cards);
+        GUI::draw(game, blue, red_cards);
         move(37, 0);
         echo();
         getnstr(input, 32);
@@ -117,7 +117,7 @@ void TripleTriad::close_game(cxxopts::ParseResult const &result) {
         clrtoeol();
         try {
             if (game.turn() == Blue && !strcmp(input, "hint")) {
-//                GUI::showHint(game.hint(blue));
+//                GUI::showHint(get_hint(game, blue, red));
                 move(37, 0);
             } else if (game.turn() == Blue && strlen(input) < 4) {
                 card_no = atoi(strtok(input, ":"));
@@ -155,7 +155,7 @@ void TripleTriad::test_open() {
     game.play(red[3], 7);
     game.play(blue[4], 8);
     game.play(red[4], 4);
-    std::cout<<game.score(Red)<<':'<<game.score(Blue)<<std::endl;
+    std::cout << game.score(Red)<<':' << game.score(Blue) << std::endl;
 }
 
 std::string TripleTriad::get_hint(Board const &main, std::vector<Card> const &player, std::vector<Card> const &enemy) {
@@ -177,9 +177,10 @@ std::string TripleTriad::get_hint(Board const &main, std::vector<Card> const &pl
 
     while (!branches.empty()) {
         auto const &max = branches.top();
+
         if (max.value() < 0 && max.turns(Blue) > 1) {
             branches.pop();
-        } else if (!max.total.at(Blue) || !max.total.at(Red) || max.turns(Blue) > 2 ||
+        } else if (!max.total.at(Blue) || !max.total.at(Red) || max.turns(Blue) > 0 ||
         (max.value() > 2 && max.turn() == Blue )) {
             results.emplace_back(max);
             branches.pop();
@@ -224,16 +225,16 @@ std::string TripleTriad::get_hint(Board const &main, std::vector<Card> const &pl
 }
 
 void TripleTriad::test_hint() {
-    std::vector<Card> blue = player_cards("Edea,Quistis,Bahamut,Odin,Leviathan", Blue);
-    std::vector<Card> red = player_cards("Squall,Blitz,Elastoid,GIM47N,Adamantoise", Red);
+//    std::vector<Card> blue = player_cards("Edea,Quistis,Bahamut,Odin,Leviathan", Blue);
+//    std::vector<Card> red = player_cards("Squall,Blitz,Elastoid,GIM47N,Adamantoise", Red);
+    std::vector<Card> blue = player_cards("Edea,Quistis,Bahamut,Diablos,Leviathan", Blue);
+    std::vector<Card> red = player_cards("Tri-Point,Wendigo,Gargantua,Bomb,Iron Giant", Red);
     std::unordered_map<Rule, bool> rules = {{Same, true},
                                             {SameWall, true},
                                             {Plus, false},
                                             {Elemental, false}};
 
-    Board game(rules, "", Red);
-    game.play(red[0], 0);
-    red.erase(red.begin() + 0);
+    Board game(rules, "", Blue);
     std::cout << get_hint(game, blue, red) << std::endl;
 
 }
