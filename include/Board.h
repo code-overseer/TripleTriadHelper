@@ -3,38 +3,21 @@
 
 #include "Utils.h"
 #include "Position.h"
-#include "Card.h"
 
 namespace TripleTriad {
-    class Card;
     class Board {
-        bool _same = false;
-        bool _plus = false;
-        bool _sameWall = false;
-        bool _elemental = false;
+        Rules _rules;
         Team _turn = Blue;
         Score _score = { {Red, 5}, {Blue, 5} };
-        Position _pos[9];
-        std::vector<Position*> _adjacent[9];
-        std::vector<Position*> _getSame(Card card, int position) const;
-        std::vector<Position*> _getPlus(Card card, int position) const;
-        std::vector<Position*> _getDefaultFlips(Card card, int position, bool combo = false) const;
-        void _getCombo(int position, std::vector<Position*> &adjacents) const;
-        void _computeAdjacents();
-        std::set<Position*> _getFlips(const Card &card, int position) const;
-        void _flip(std::set<Position*> const &positions);
+        std::vector<Position> _pos = std::vector<Position>(static_cast<size_t>(9));
+        std::vector<std::vector<Position*>> _adj;
+        void _adjacent();
     public:
         Board() = default;
-        Board(Rules const &rules, std::string const &elements, Team turn);
+        Board(Rules &&rules, std::string const &elements, Team turn);
         Board(Board const &other);
-        std::vector<Position const*> getBlanks() const;
-        int play(Card const &card, int pos);
-        int try_play(Card const &card, int pos) const;
-        inline int score(Team team) const { return _score.at(team); }
-        inline Card const* card(int i) const { return _pos[i].card(); }
-        inline Element element(int i) const { return _pos[i].element(); }
-        inline Team turn() const { return _turn; }
-        inline bool isElemental(int i) const { return !_pos[i].empty() && _pos[i].element() == _pos[i].card()->element(); }
+        inline int const &score(Team team) const { return _score.at(team); }
+        inline Team const &turn() const { return _turn; }
     };
 }
 

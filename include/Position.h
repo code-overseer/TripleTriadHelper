@@ -5,22 +5,30 @@
 #include "Card.h"
 namespace TripleTriad {
     struct Position {
-        Position() = default;
-        explicit Position(int i, Element e = None) : _index(i), _element(e) {}
-        Position(Position const &other);
-        Position& operator=(Position &&other) noexcept;
-        Position& operator=(Position const &other);
-        int flip(Team team);
-        void place(Card const &card);
-        TripleTriad::Card const* card() const;
-        inline bool empty() const { return _empty; }
-        inline int idx() const { return _index; }
-        inline Element element() const { return _element; }
+        void place(std::string const &card_name, Team team);
+        void check(std::string const &card_name, Team team);
+        inline bool const &empty() const { return _empty; }
+        inline int const &idx() const { return _index; }
+        inline Element const &element() const { return _element; }
+        inline Team const &team() const { return _team; }
+        friend class Board;
     private:
+        inline void _flip() { _team = _team == Red ? Blue : Red; }
+        inline void _clear() { _empty = true; };
+        inline void _confirm() { _empty = false; };
+        Position& operator=(Position &&other) noexcept = default;
+        Position& operator=(Position const &other) = default;
+        Position() = default;
+        Position(Position const &other) = default;
+        Position(Position &&other) noexcept = default;
+        explicit Position(int i, Element e = None) : _index(i), _element(e) {}
+        int const* _score = nullptr;
+        std::string _name;
         Element _element = None;
-        int _index = 0;
-        TripleTriad::Card _card;
+        int _index = -1;
         bool _empty = true;
+        Team _team = Blue;
+        int _elemental = 0;
     };
 
 }

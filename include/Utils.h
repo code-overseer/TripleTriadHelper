@@ -25,6 +25,7 @@ namespace TripleTriad {
     enum Element { Fire, Ice, Water, Earth, Holy, Poison, Thunder, Wind, None };
     enum Rule { Same, SameWall, Plus, Elemental };
     enum Team { Blue, Red };
+    enum Direction { Up, Down, Left, Right };
     typedef std::unordered_map<Team, int> Score;
     typedef std::unordered_map<Rule, bool> Rules;
     static std::unordered_map<char, Element> const elementMap = // NOLINT(cert-err58-cpp)
