@@ -16,8 +16,9 @@ namespace TripleTriad {
                 {{None, ' '}, {Thunder, 'T'}, {Earth, 'E'}, {Poison, 'P'}, {Fire, 'F'},
                  {Ice, 'I'}, {Water, 'A'}, {Wind, 'W'}, {Holy, 'H'}};
         void init();
-        void drawBlock(std::pair<int, int> const &root, Element board_elem = None, Card const* card = nullptr);
-        void drawBlock(std::pair<int, int> const &root, TripleTriad::Position const &pos);
+        void drawBlock(std::pair<int, int> const &root);
+        void drawBlock(std::pair<int, int> const &root, Card const &card);
+        void drawBlock(std::pair<int, int> const &root, Position const &pos);
         void clearBlock(std::pair<int, int> const &root);
         void drawPlayerList(std::vector<std::string> const &cards, Team team);
         void drawPlayerList(int unknown_count);

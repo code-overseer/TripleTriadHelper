@@ -15,33 +15,21 @@ void TripleTriad::GUI::init() {
     clear();
 }
 
-void TripleTriad::GUI::drawBlock(std::pair<int, int> const &root, Element const board_elem, Card const *card) {
-    mvaddch(root.second, root.first, '+');
-    mvaddch(root.second + 4, root.first, '+');
-    mvaddch(root.second, root.first + 4, '+');
-    mvaddch(root.second + 4, root.first + 4, '+');
+void TripleTriad::GUI::drawBlock(std::pair<int, int> const &root, Card const &card) {
+    drawBlock(root);
 
-    for (int i = 1; i < 4; ++i) {
-        mvaddch(root.second, root.first + i, '-'); // top
-        mvaddch(root.second + 4, root.first + i, '-'); // bottom
-        mvaddch(root.second + i, root.first, '|'); // left
-        mvaddch(root.second + i, root.first + 4, '|'); // right
-    }
-    mvaddch(root.second + 1, root.first + 1, element_map.at(board_elem));
-
-    if (!card) return;
-    mvaddch(root.second + 1, root.first + 3, element_map.at(card->element()));
-    char score = static_cast<char>('0' + card->up());
+    mvaddch(root.second + 1, root.first + 3, element_map.at(card.element()));
+    char score = static_cast<char>('0' + card.up());
     mvaddch(root.second + 1, root.first + 2, score > '9' ? 'A' : score); // north
-    score = static_cast<char>('0' + card->down());
+    score = static_cast<char>('0' + card.down());
     mvaddch(root.second + 3, root.first + 2, score > '9' ? 'A' : score); // south
-    score = static_cast<char>('0' + card->right());
+    score = static_cast<char>('0' + card.right());
     mvaddch(root.second + 2, root.first + 3, score > '9' ? 'A' : score); // east
-    score = static_cast<char>('0' + card->left());
+    score = static_cast<char>('0' + card.left());
     mvaddch(root.second + 2, root.first + 1, score > '9' ? 'A' : score); // west
 }
 
-void TripleTriad::GUI::drawBlock(std::pair<int, int> const &root, Position const &position) {
+void TripleTriad::GUI::drawBlock(std::pair<int, int> const &root) {
     mvaddch(root.second, root.first, '+');
     mvaddch(root.second + 4, root.first, '+');
     mvaddch(root.second, root.first + 4, '+');
@@ -53,6 +41,11 @@ void TripleTriad::GUI::drawBlock(std::pair<int, int> const &root, Position const
         mvaddch(root.second + i, root.first, '|'); // left
         mvaddch(root.second + i, root.first + 4, '|'); // right
     }
+    mvaddch(root.second + 1, root.first + 1, element_map.at(None));
+}
+
+void TripleTriad::GUI::drawBlock(std::pair<int, int> const &root, Position const &position) {
+    drawBlock(root);
     mvaddch(root.second + 1, root.first + 1, element_map.at(position.element()));
 
     if (position.empty()) return;
@@ -72,8 +65,7 @@ void TripleTriad::GUI::drawPlayerList(std::vector<std::string> const &cards, Tea
     if (team == Red) {
         for (int i = 0; i < 5; ++i) {
             if (i < cards.size()) {
-                auto const &card = Card::getCard(cards[i]);
-                drawBlock({0, y}, card.element(), &card);
+                drawBlock({0, y}, Card::getCard(cards[i]));
                 mvaddstr(27 + i, 0, "                  ");
                 mvaddch(27 + i, 0, '0' + i);
                 mvaddstr(27 + i, 1, ". ");
@@ -88,8 +80,7 @@ void TripleTriad::GUI::drawPlayerList(std::vector<std::string> const &cards, Tea
     }
     for (int i = 0; i < 5; ++i) {
         if (i < cards.size()) {
-            auto const &card = Card::getCard(cards[i]);
-            drawBlock({28, y}, card.element(), &card);
+            drawBlock({28, y}, Card::getCard(cards[i]));
             mvaddstr(27 + i, 28, "                  ");
             mvaddch(27 + i, 28, '0' + i);
             mvaddstr(27 + i, 29, ". ");
