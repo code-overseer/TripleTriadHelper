@@ -16,7 +16,7 @@ namespace TripleTriad {
         Rules _rules;
         Team _turn = Blue;
         Score _score = { {Red, 5}, {Blue, 5} };
-        std::vector<Position> _pos = std::vector<Position>(static_cast<size_t>(9));
+        std::vector<Position, Position::PositionAllocator> _pos;
         std::vector<std::list<Position*>> _adj;
         void _getFlips(std::string const &card_name, int pos);
         void _getDefaultFlips(std::set<Position *> &flips, int pos) const;
@@ -28,6 +28,9 @@ namespace TripleTriad {
         Board() = default;
         Board(Rules &&rules, std::string const &elements, Team turn);
         Board(Board const &other);
+        Board(Board &&other) noexcept;
+        Board &operator=(Board const &other);
+        Board &operator=(Board &&other) noexcept;
         inline int const &score(Team team) const { return _score.at(team); }
         inline Team const &turn() const { return _turn; }
         inline Element const &element(int i) { return _pos[i].element(); }

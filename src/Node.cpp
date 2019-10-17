@@ -1,18 +1,44 @@
 #include "Node.h"
 
+#include <utility>
+
 TripleTriad::Node::Node(int first_card, int pos, std::vector<std::string> const &player,
-                  std::vector<std::string> const &enemy, Board const &main) : _uid(first_card), _board(main), _position(pos) {
+                  std::vector<std::string> const &enemy, Board main) : _uid(first_card), _board(std::move(main)), _position(pos) {
     _stats = { {Blue, stat_t(player)}, {Red, stat_t(enemy)} };
-    forward(first_card, pos);
+}
+
+TripleTriad::Node::Node(TripleTriad::Node const &other) : _board(other._board), _uid(other._uid),
+_position(other._position), _value(other._value), _stats(other._stats) {}
+
+TripleTriad::Node::Node(TripleTriad::Node &&other) noexcept : _board(std::move(other._board)), _uid(other._uid),
+_position(other._position), _value(other._value), _stats(std::move(other._stats)) {
+
+}
+
+TripleTriad::Node &TripleTriad::Node::operator=(const TripleTriad::Node &other) {
+    _board = other._board;
+    _uid = other._uid;
+    _position = other._position;
+    _value = other._value;
+    _stats = other._stats;
+    return *this;
+}
+
+TripleTriad::Node &TripleTriad::Node::operator=(TripleTriad::Node &&other) noexcept {
+    _board = std::move(other._board);
+    _stats = std::move(other._stats);
+    _uid = other._uid;
+    _position = other._position;
+    _value = other._value;
+    return *this;
 }
 
 TripleTriad::Node TripleTriad::Node::forward(int card_idx, int pos) const {
     auto output = *this;
-    output._depth++;
     auto &stat = output._stats.at(turn());
     stat.isUsed[card_idx] = true;
     auto d = output._heuristic(output._board.play(stat.cards[0][card_idx], pos));
-    if (stat.delta < 0.1 && d < 0.1)
+    if (turn() == Blue && stat.delta + d < -4)
         output._value = -10;
     else
         output._value += d;
@@ -27,6 +53,7 @@ float TripleTriad::Node::_heuristic(int gain) {
     auto &stat = _stats.at(turn());
     int num = stat.remaining() * static_cast<int>(blanks.size());
     int loss[num];
+    memset(loss, 0, num * sizeof(int));
     int n = 0;
     for (auto const &blank : blanks) {
         for (int i = 0; i < stat.size(); ++i, ++n) {

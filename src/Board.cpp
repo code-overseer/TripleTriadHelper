@@ -1,8 +1,8 @@
 #include "Board.h"
 #include "TripleTriad.h"
 
-TripleTriad::Board::Board(Rules &&rules, std::string const &elements, Team turn) : _turn(turn),
-_rules(std::move(rules)), _flips() {
+TripleTriad::Board::Board(Rules &&rules, std::string const &elements, Team turn) : _turn(turn), _rules(rules), _flips(),
+_pos() {
     if (rules.at(Elemental)) {
         if (elements.size() != 9) throw std::runtime_error("Expected 9 elements");
         auto j = elements.begin();
@@ -16,6 +16,26 @@ _rules(std::move(rules)), _flips() {
 TripleTriad::Board::Board(const TripleTriad::Board &other) : _rules(other._rules), _turn(other._turn),
 _score(other._score), _pos(other._pos), _flips() {
     _adjacent();
+}
+
+TripleTriad::Board::Board(TripleTriad::Board &&other) noexcept : _rules(std::move(other._rules)), _turn(other._turn),
+_score(std::move(other._score)), _pos(std::move(other._pos)), _flips() {
+    _adjacent();
+}
+
+TripleTriad::Board &TripleTriad::Board::operator=(const TripleTriad::Board &other) {
+    *this = Board(other);
+    return *this;
+}
+
+TripleTriad::Board &TripleTriad::Board::operator=(TripleTriad::Board &&other) noexcept {
+    _rules = std::move(other._rules);
+    _pos = std::move(other._pos);
+    _score = std::move(other._score);
+    _turn = other._turn;
+    _flips = flips_t();
+    _adjacent();
+    return *this;
 }
 
 void TripleTriad::Board::_adjacent() {
@@ -61,7 +81,7 @@ void TripleTriad::Board::_getComboFlips(std::set<Position *> &flips, int pos, bo
 
 void TripleTriad::Board::_getSameFlips(std::set<Position *> &flips, int pos) const {
     if (!_rules.at(Same)) return;
-    std::list<Position*> same(_adj[pos].size());
+    std::list<Position*> same;
     for (auto const &adj : _adj[pos]) {
         if (adj->empty() || !(_pos[pos] == *adj)) continue;
         same.emplace_back(adj);
@@ -77,7 +97,7 @@ void TripleTriad::Board::_getSameFlips(std::set<Position *> &flips, int pos) con
 
 void TripleTriad::Board::_getPlusFlips(std::set<Position *> &flips, int pos) const {
     if (!_rules.at(Plus)) return;
-    std::list<Position*> plus(_adj[pos].size());
+    std::list<Position*> plus;
     int x = 1;
     for (auto const &i : _adj[pos]) {
         int y = 0;
@@ -101,6 +121,8 @@ int TripleTriad::Board::play(std::string const &card, int pos) {
     for (auto const &i : _flips.flips) i->_flip();
     _turn = _turn == Red ? Blue : Red;
     auto out = static_cast<int>(_flips.flips.size()) * ((_turn == Red) - (_turn == Blue));
+    _score.at(Blue) += out;
+    _score.at(Red) -= out;
     _flips = flips_t();
     return out;
 }
@@ -112,7 +134,7 @@ int TripleTriad::Board::calculate(std::string const &card, int pos) {
 }
 
 std::list<TripleTriad::Position const*> TripleTriad::Board::getBlanks() const {
-    auto output = std::list<Position const*>(static_cast<size_t>(9));
+    std::list<Position const*> output;
     for (auto i = 0; i < 9; ++i) {
         if (_pos[i].empty()) output.emplace_back(&_pos[i]);
     }

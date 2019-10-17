@@ -6,17 +6,24 @@
 namespace TripleTriad {
     class Position;
     class Card {
+        struct CardAllocator : std::allocator<Card> {
+            template< class U, class... Args >
+            void construct( U* p, Args&&... args ) {
+                ::new((void *)p) U(std::forward<Args>(args)...);
+            }
+
+            template< class U > struct rebind { typedef CardAllocator other; };
+        };
     private:
         std::string _name;
         int _score[4] = {0, 0, 0, 0};
         Element _element = None;
         Card(std::string card_name, Element element, int score[4]);
+        Card(Card const &other) = default;
         static Card const* cardList(int i = 0);
     public:
-        friend class std::vector<Card>;
+        friend class CardAllocator;
         static Card const& getCard(std::string const &name);
-        Card(Card const &other) = delete;
-        Card(Card &&other) = delete;
         inline Element const &element() const { return _element; }
         inline std::string const& name() const { return _name; }
         inline int const* score() const { return _score; }

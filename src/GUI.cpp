@@ -1,10 +1,12 @@
 //
-// Created by Bryan Wong on 2019-09-20.
+
 //
+// Created by Bryan Wong on 2019-09-20.
 
 #include <GUI.h>
 #include <ncurses.h>
 #include "Board.h"
+
 #include "Card.h"
 
 void TripleTriad::GUI::init() {
@@ -141,6 +143,7 @@ void TripleTriad::GUI::drawBoard(const TripleTriad::Board &board) {
     mvaddstr(35,0, "For non-Open game, opponent input: [CardName]:[Pos no]");
     mvaddnstr(24, 15, score_card, 3);
 }
+
 
 void TripleTriad::GUI::changeTurn(TripleTriad::Team team) {
     mvaddch(0, (team == Red ? 3 : 32), '*');

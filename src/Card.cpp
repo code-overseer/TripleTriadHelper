@@ -5,7 +5,7 @@
 #include "Position.h"
 
 TripleTriad::Card const *TripleTriad::Card::cardList(int i) {
-    static std::vector<Card const> database(static_cast<size_t>(109));
+    static std::vector<Card, CardAllocator> database;
     if (database.empty()) {
         io::CSVReader<6> data(CARD_DATA);
         std::string name;
