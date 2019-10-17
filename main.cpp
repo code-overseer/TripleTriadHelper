@@ -8,7 +8,7 @@ int main(int argc, char* argv[]) {
 //    test_open();
     test_hint();
     return 0;
-    std::vector<Card> blue = player_cards(result["blue"].as<std::string>());
+    auto blue = player_cards(result["blue"].as<std::string>());
     bool isOpen = result["red"].count();
     if (isOpen) {
         open_game(result);

@@ -1,24 +1,21 @@
-//
-// Created by Bryan Wong on 2019-10-11.
-//
-
 #ifndef TRIPLETRIAD_UTILS_H
 #define TRIPLETRIAD_UTILS_H
-#include<iostream>
-#include<cstdio>
-#include<initializer_list>
-#include<vector>
-#include<unordered_map>
-#include<functional>
-#include<set>
-#include<queue>
-#include<stack>
-#include<string>
-#include<sstream>
-#include<map>
-#include<utility>
-#include<iomanip>
-#include<list>
+#include <iostream>
+#include <cstdio>
+#include <initializer_list>
+#include <vector>
+#include <unordered_map>
+#include <functional>
+#include <set>
+#include <queue>
+#include <stack>
+#include <string>
+#include <sstream>
+#include <map>
+#include <utility>
+#include <numeric>
+#include <iomanip>
+#include <list>
 #include "cxxopts.hpp"
 
 namespace TripleTriad {

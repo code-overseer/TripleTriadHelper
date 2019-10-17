@@ -1,5 +1,7 @@
 #include "csv.h"
 #include "Card.h"
+
+#include <utility>
 #include "Position.h"
 
 TripleTriad::Card const *TripleTriad::Card::cardList(int i) {

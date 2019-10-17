@@ -34,7 +34,7 @@ namespace TripleTriad {
         inline Team const &team(int i) const { return _pos[i].team(); }
         int play(std::string const &card, int pos);
         int calculate(std::string const &card, int pos);
-        std::list<Position*> getBlanks() const;
+        std::list<Position const*> getBlanks() const;
         friend void GUI::drawBoard(const TripleTriad::Board &board);
     };
 }
