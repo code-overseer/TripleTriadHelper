@@ -1,8 +1,6 @@
 #include "csv.h"
 #include "Card.h"
-
-#include <utility>
-#include "Position.h"
+#include "Utils.h"
 
 TripleTriad::Card const *TripleTriad::Card::cardList(int i) {
     static std::vector<Card, CardAllocator> database;

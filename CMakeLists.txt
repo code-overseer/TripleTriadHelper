@@ -16,7 +16,7 @@ add_executable(TripleTriad
         src/Card.cpp
         src/Position.cpp
         src/TripleTriad.cpp
-        src/GUI.cpp include/Utils.h include/Node.h src/Node.cpp)
+        src/GUI.cpp include/Utils.h include/Node.h src/Node.cpp include/Branch.h src/Branch.cpp)
 target_link_libraries (TripleTriad ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(TripleTriad ${CURSES_LIBRARIES})
 

@@ -3,7 +3,7 @@
 #include "TripleTriad.h"
 #include "Card.h"
 #include "GUI.h"
-#include "Node.h"
+#include "Branch.h"
 
 cxxopts::Options TripleTriad::option_parser() {
     using namespace cxxopts;
@@ -158,27 +158,20 @@ void TripleTriad::test_open() {
     std::cout << game.score(Red)<<':' << game.score(Blue) << std::endl;
 }
 
-
 std::string TripleTriad::get_hint(Board const &main, std::vector<std::string> const &player,
         std::vector<std::string> const &enemy) {
 
-    std::unordered_map<Team, std::vector<std::string> const &> cards = {{Blue, player}, {Red, enemy}};
     auto blanks = main.getBlanks();
-    auto total = static_cast<int>(cards.at(Blue).size());
-    std::vector<Node> branches;
+    auto total = static_cast<int>(player.size());
+    std::vector<Branch> scores;
+    scores.reserve(blanks.size() * total);
     for (auto const &blank : blanks) {
         for (int i = 0; i < total; ++i) {
-            branches.emplace_back(Node(i, blank->idx(), cards.at(Blue), cards.at(Red), main).forward());
+            scores.emplace_back(i, blank->idx(), player, enemy, main);
         }
     }
-    std::vector<score_t> scores;
-    scores.reserve(branches.size());
 
-    for (auto &branch : branches) {
-        scores.emplace_back(branch.position(), branch.uid(), alphaBeta(branch));
-    }
-
-    std::sort(scores.begin(), scores.end(), score_t::compare);
+    std::sort(scores.begin(), scores.end(), Branch::compare);
 
     std::stringstream out_stream;
     out_stream << std::left << std::setw(6) << std::setfill(' ') << "No.";
@@ -187,7 +180,7 @@ std::string TripleTriad::get_hint(Board const &main, std::vector<std::string> co
     out_stream << std::left << std::setw(15) << std::setfill(' ') << "Potential";
     out_stream << '\n';
 
-    for (int i = 0; i < 16 && i < (int)scores.size(); ++i) {
+    for (int i = 0; i < 9 && i < (int)scores.size(); ++i) {
         out_stream << std::left << std::setw(6) << std::setfill(' ') << i + 1;
         out_stream << std::left << std::setw(15) << std::setfill(' ') << player[scores[i].card];
         out_stream << std::left << std::setw(9) << std::setfill(' ') << scores[i].pos;
@@ -210,33 +203,12 @@ void TripleTriad::test_hint() {
                                             {Elemental, false}};
 
     Board game(std::move(rules), "", Blue);
-//    game.play(blue[0], 6);
-//    blue.erase(blue.begin());
-//    game.play(red[0], 2);
-//    red.erase(red.begin());
+    game.play(blue[0], 6);
+    blue.erase(blue.begin());
+    game.play(red[0], 2);
+    red.erase(red.begin());
     std::cout << get_hint(game, blue, red) << std::endl;
 
-}
-
-float TripleTriad::alphaBeta(const TripleTriad::Node &node, int depth, float alpha, float beta) {
-
-    if (!depth || node.value() < -5 || node.terminated()) return node.value();
-    float val = -1e5;
-    auto blanks = node.blanks();
-    auto cards = static_cast<int>(node.cards(Blue).size());
-    for (auto const &blank : blanks) {
-        for (int i = 0; i < cards; ++i) {
-            if (node.used(node.turn(), i)) continue;
-            val = std::max(val, alphaBeta(node.forward(i, blank->idx()), depth - 1, alpha, beta));
-            if (node.turn() == Blue) {
-                alpha = std::max(alpha, val);
-            } else {
-                beta = std::max(beta, val);
-            }
-            if (alpha >= -beta) break;
-        }
-    }
-    return val;
 }
 
 
