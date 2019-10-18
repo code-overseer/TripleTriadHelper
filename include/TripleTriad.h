@@ -9,8 +9,8 @@ namespace TripleTriad {
     std::vector<std::string> player_cards(std::string const &names);
     void open_game(cxxopts::ParseResult const &result);
     void close_game(cxxopts::ParseResult const &result);
-    std::string get_hint(Board const &main, std::vector<std::string> const &player,
-            std::vector<std::string> const &enemy);
+    std::string hint(Board const &main, std::vector<std::string> const &player,
+                     std::vector<std::string> const &enemy);
     void test_open();
     void test_hint();
 }

@@ -4,8 +4,7 @@
 #include "Utils.h"
 
 namespace TripleTriad {
-    class Position;
-    class Card {
+    struct Card {
         struct CardAllocator : std::allocator<Card> {
             template< class U, class... Args >
             void construct( U* p, Args&&... args ) {
@@ -20,7 +19,10 @@ namespace TripleTriad {
         Element _element = None;
         Card(std::string card_name, Element element, int score[4]);
         Card(Card const &other) = default;
-        static Card const* cardList(int i = 0);
+        static std::vector<Card, CardAllocator> _database;
+        static std::unordered_map<std::string, Card const*> _map;
+        static std::unordered_map<std::string, Card const*> _map_initialize();
+        static std::vector<Card,CardAllocator> _data_initialize();
     public:
         friend class CardAllocator;
         static Card const& getCard(std::string const &name);
@@ -32,7 +34,6 @@ namespace TripleTriad {
         inline int right() const { return _score[2]; }
         inline int left() const { return _score[3]; }
     };
-
 }
 
 #endif //TRIPLETRIAD_CARD_H

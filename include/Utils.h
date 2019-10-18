@@ -17,8 +17,8 @@
 #include <numeric>
 #include <iomanip>
 #include <list>
+#include <ncurses.h>
 #include "cxxopts.hpp"
-
 
 namespace TripleTriad {
     class Card;
@@ -32,6 +32,5 @@ namespace TripleTriad {
             {{'N', None}, {'T', Thunder}, {'E', Earth}, {'P', Poison}, {'F', Fire},
              {'I', Ice}, {'A', Water}, {'W', Wind}, {'H', Holy}};
 }
-
 
 #endif //TRIPLETRIAD_UTILS_H

@@ -1,4 +1,3 @@
-#include <ncurses.h>
 #include "Board.h"
 #include "TripleTriad.h"
 #include "Card.h"
@@ -64,7 +63,7 @@ void TripleTriad::open_game(cxxopts::ParseResult const &result) {
         clrtoeol();
         try {
             if (game.turn() == Blue && !strcmp(input, "hint")) {
-                GUI::showHint(get_hint(game, blue, red));
+                GUI::showHint(hint(game, blue, red));
                 move(37, 0);
             } else if (strlen(input) < 4) {
                 card_no = atoi(strtok(input, ":"));
@@ -158,20 +157,30 @@ void TripleTriad::test_open() {
     std::cout << game.score(Red)<<':' << game.score(Blue) << std::endl;
 }
 
-std::string TripleTriad::get_hint(Board const &main, std::vector<std::string> const &player,
-        std::vector<std::string> const &enemy) {
+static void construct(TripleTriad::Branch* branch, int i, int j, std::vector<std::string> const* player,
+        std::vector<std::string> const* enemy, TripleTriad::Board const *main) {
+    *branch = TripleTriad::Branch(i, j, *player, *enemy, *main);
+}
+
+std::string TripleTriad::hint(Board const &main, std::vector<std::string> const &player,
+                              std::vector<std::string> const &enemy) {
 
     auto blanks = main.getBlanks();
     auto total = static_cast<int>(player.size());
-    std::vector<Branch> scores;
-    scores.reserve(blanks.size() * total);
+    auto num = static_cast<int>(blanks.size() * total);
+    Branch scores[num];
+    std::thread threads[num];
+    int n = 0;
     for (auto const &blank : blanks) {
-        for (int i = 0; i < total; ++i) {
-            scores.emplace_back(i, blank->idx(), player, enemy, main);
+        for (int i = 0; i < total; ++i, ++n) {
+            threads[n] = std::thread(&construct, scores + n, i, blank->idx(), &player, &enemy, &main);
         }
     }
+    for (int k = 0; k < num; ++k) {
+        if (threads[k].joinable()) threads[k].join();
+    }
 
-    std::sort(scores.begin(), scores.end(), Branch::compare);
+    std::sort(scores, scores + num, Branch::compare);
 
     std::stringstream out_stream;
     out_stream << std::left << std::setw(6) << std::setfill(' ') << "No.";
@@ -180,7 +189,7 @@ std::string TripleTriad::get_hint(Board const &main, std::vector<std::string> co
     out_stream << std::left << std::setw(15) << std::setfill(' ') << "Potential";
     out_stream << '\n';
 
-    for (int i = 0; i < 9 && i < (int)scores.size(); ++i) {
+    for (int i = 0; i < 9 && i < num; ++i) {
         out_stream << std::left << std::setw(6) << std::setfill(' ') << i + 1;
         out_stream << std::left << std::setw(15) << std::setfill(' ') << player[scores[i].card];
         out_stream << std::left << std::setw(9) << std::setfill(' ') << scores[i].pos;
@@ -189,7 +198,6 @@ std::string TripleTriad::get_hint(Board const &main, std::vector<std::string> co
     }
 
     return out_stream.str();
-
 }
 
 void TripleTriad::test_hint() {
@@ -203,11 +211,11 @@ void TripleTriad::test_hint() {
                                             {Elemental, false}};
 
     Board game(std::move(rules), "", Blue);
-    game.play(blue[0], 6);
-    blue.erase(blue.begin());
-    game.play(red[0], 2);
-    red.erase(red.begin());
-    std::cout << get_hint(game, blue, red) << std::endl;
+//    game.play(blue[0], 6);
+//    blue.erase(blue.begin());
+//    game.play(red[0], 2);
+//    red.erase(red.begin());
+    std::cout << hint(game, blue, red) << std::endl;
 
 }
 
