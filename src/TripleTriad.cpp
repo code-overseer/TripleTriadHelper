@@ -141,20 +141,65 @@ void TripleTriad::close_game(cxxopts::ParseResult const &result) {
 
 }
 
+void TripleTriad::test_open(cxxopts::ParseResult const &result) {
+    std::vector<std::string> blue = player_cards(result["blue"].as<std::string>());
+    std::vector<std::string> red = player_cards(result["red"].as<std::string>());
+    if (blue.size() != 5 && blue.size() != red.size())
+        throw std::runtime_error("Not enough cards supplied, each team must have 5 cards");
+    std::unordered_map<Rule, bool> rules = {{Same, result["same"].as<bool>()},
+                                            {SameWall, result["wall"].as<bool>()},
+                                            {Plus, result["plus"].as<bool>()},
+                                            {Elemental, result["elemental"].count()}};
+    Team turn = toupper(result["turn"].as<char>()) == 'R' ? Red : Blue;
+    Board game(std::move(rules), rules.at(Elemental) ? result["elemental"].as<std::string>() : "", turn);
+    int plays = 0;
+    char input[64];
+    int card_no;
+    int pos;
+    while (plays < 9) {
+        std::cin >> input;
+        if (!strlen(input)) continue;
+        try {
+            if (game.turn() == Blue && !strcmp(input, "hint")) {
+                std::cout<<hint(game, blue, red)<<std::endl;
+                move(37, 0);
+            } else if (strlen(input) < 4) {
+                card_no = atoi(strtok(input, ":"));
+                pos = atoi(strtok(nullptr, ":"));
+                if (game.turn() == Red) {
+                    game.play(red[card_no], pos);
+                    red.erase(red.begin() + card_no);
+                } else {
+                    game.play(blue[card_no], pos);
+                    blue.erase(blue.begin() + card_no);
+                }
+                ++plays;
+            } else {
+                throw std::exception();
+            }
+        } catch (std::exception &e) {
+            std::cerr<<input<<" is invalid"<<std::endl;
+            continue;
+        }
+    }
+}
 void TripleTriad::test_open() {
-    auto blue = player_cards("Edea,Quistis,Bahamut,Odin,Leviathan");
-    auto red = player_cards("Squall,Blitz,Elastoid,GIM47N,Adamantoise");
+//    auto blue = player_cards("Edea,Quistis,Bahamut,Odin,Leviathan");
+//    auto red = player_cards("Squall,Blitz,Elastoid,GIM47N,Adamantoise");
+    auto blue = player_cards("Edea,Doomtrain,Bahamut,Diablos,Leviathan");
+    auto red = player_cards("Quistis,Turtapod,Blitz,Abyss Worm,Malboro");
     std::unordered_map<Rule, bool> rules = {{Same, true},
                                             {SameWall, true},
                                             {Plus, false},
                                             {Elemental, false}};
-    Board game(std::move(rules), "", Red);
+    Board game(std::move(rules), "", Blue);
+
+    game.play(blue[1], 2);
     game.play(red[0], 0);
-    game.play(blue[1], 3);
-    game.play(red[3], 7);
-    game.play(blue[4], 8);
-    game.play(red[4], 4);
-    std::cout << game.score(Red)<<':' << game.score(Blue) << std::endl;
+    game.play(blue[2], 1);
+    game.play(red[3], 4);
+//    std::cout << game.score(Red)<<':' << game.score(Blue) << std::endl;
+    std::cout << hint(game, blue, red) << std::endl;
 }
 
 static void construct(TripleTriad::Branch* branch, int i, int j, std::vector<std::string> const* player,
@@ -176,12 +221,12 @@ std::string TripleTriad::hint(Board const &main, std::vector<std::string> const 
             threads[n] = std::thread(&construct, scores + n, i, blank->idx(), &player, &enemy, &main);
         }
     }
+
     for (int k = 0; k < num; ++k) {
         if (threads[k].joinable()) threads[k].join();
     }
 
     std::sort(scores, scores + num, Branch::compare);
-
     std::stringstream out_stream;
     out_stream << std::left << std::setw(6) << std::setfill(' ') << "No.";
     out_stream << std::left << std::setw(15) << std::setfill(' ') << "Card";

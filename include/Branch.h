@@ -8,7 +8,7 @@ namespace TripleTriad {
     struct Branch {
     private:
         struct Node;
-        static float _compute(Node const &node, int depth = 4, float alpha = -1e5, float beta = -1e5);
+        static float alphabeta(Node const &node, int depth = 4, float alpha = -50, float beta = 50);
     public:
         int pos = -1;
         int card = -1;

@@ -10,7 +10,6 @@ namespace TripleTriad {
         struct stat_t {
             std::vector<std::string> const *cards = nullptr;
             std::vector<bool> isUsed;
-            float delta = 0;
             inline int remaining() const { return static_cast<int>(cards->size() - used()); };
             inline int used() const { return std::accumulate(isUsed.begin(), isUsed.end(), 0);}
             inline int size() const { return static_cast<int>(cards->size()); }
@@ -29,7 +28,7 @@ namespace TripleTriad {
         float value = 0;
         Board board;
         std::unordered_map<Team, stat_t> stats;
-        float heuristic(int gain);
+        void heuristic();
         Node(Node const &other);
         Node(Node &&other) noexcept;
         Node &operator=(Node const &other);
@@ -40,6 +39,7 @@ namespace TripleTriad {
         inline std::list<Position const*> blanks() const  { return board.getBlanks(); }
         inline bool terminated() const  { return blanks().empty(); }
         inline bool used(Team t, int i) const { return stats.at(t).isUsed[i]; }
+        inline int used(Team t) const { return stats.at(t).used(); }
         inline Team const &turn() const { return board.turn(); }
         inline std::vector<std::string> const &cards(Team t) const { return *stats.at(t).cards; }
     };

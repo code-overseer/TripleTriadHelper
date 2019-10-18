@@ -1,4 +1,3 @@
-#include "Board.h"
 #include "TripleTriad.h"
 
 int main(int argc, char* argv[]) {
@@ -6,7 +5,6 @@ int main(int argc, char* argv[]) {
     auto options = option_parser();
     auto result = options.parse(argc, argv);
 
-    auto blue = player_cards(result["blue"].as<std::string>());
     bool isOpen = result["red"].count();
     if (isOpen) {
         open_game(result);

@@ -90,6 +90,8 @@ void TripleTriad::Board::_getSameFlips(std::set<Position *> &flips, int pos) con
         bool visited[9];
         memset(visited, 0, 9);
         for (auto const &card : same) {
+            if (card->team() == _turn) continue;
+            flips.emplace(card);
             _getComboFlips(flips, card->idx(), visited);
         }
     }
@@ -111,6 +113,8 @@ void TripleTriad::Board::_getPlusFlips(std::set<Position *> &flips, int pos) con
     bool visited[9];
     memset(visited, 0, 9);
     for (auto const &card : plus) {
+        if (card->team() == _turn) continue;
+        flips.emplace(card);
         _getComboFlips(flips, card->idx(), visited);
     }
 }
@@ -120,7 +124,7 @@ int TripleTriad::Board::play(std::string const &card, int pos) {
     _getFlips(card, pos);
     for (auto const &i : _flips.flips) i->_flip();
     _turn = _turn == Red ? Blue : Red;
-    auto out = static_cast<int>(_flips.flips.size()) * ((_turn == Red) - (_turn == Blue));
+    auto out = static_cast<int>(_flips.flips.size()) * ((_turn == Red) - (_turn == Blue));;
     _score.at(Blue) += out;
     _score.at(Red) -= out;
     _flips = flips_t();
@@ -130,7 +134,7 @@ int TripleTriad::Board::play(std::string const &card, int pos) {
 int TripleTriad::Board::calculate(std::string const &card, int pos) {
     _pos[pos].check(card, _turn);
     _getFlips(card, pos);
-    return static_cast<int>(_flips.flips.size()) * ((_turn == Red) - (_turn == Blue));
+    return static_cast<int>(_flips.flips.size()) * ((_turn == Blue) - (_turn == Red));;
 }
 
 std::list<TripleTriad::Position const*> TripleTriad::Board::getBlanks() const {
