@@ -73,7 +73,7 @@ void TripleTriad::Board::_getComboFlips(std::set<Position *> &flips, int pos, bo
     if (_pos[pos].empty() || _pos[pos].team() == _turn) return;
 
     for (auto const &adj : _adj[pos]) {
-        if (adj->empty() || adj->team() != _turn || !(_pos[pos] > *adj)) continue;
+        if (adj->empty() || adj->team() == _turn || !(_pos[pos] > *adj)) continue;
         flips.emplace(adj);
         _getComboFlips(flips, adj->idx(), visited);
     }

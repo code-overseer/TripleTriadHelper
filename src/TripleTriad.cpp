@@ -116,7 +116,7 @@ void TripleTriad::close_game(cxxopts::ParseResult const &result) {
         clrtoeol();
         try {
             if (game.turn() == Blue && !strcmp(input, "hint")) {
-//                GUI::showHint(get_hint(game, blue, red));
+                GUI::showHint("Currently no hints for closed game");
                 move(37, 0);
             } else if (game.turn() == Blue && strlen(input) < 4) {
                 card_no = atoi(strtok(input, ":"));

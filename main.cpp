@@ -5,9 +5,7 @@ int main(int argc, char* argv[]) {
     using namespace TripleTriad;
     auto options = option_parser();
     auto result = options.parse(argc, argv);
-    test_open();
-//    test_hint();
-    return 0;
+
     auto blue = player_cards(result["blue"].as<std::string>());
     bool isOpen = result["red"].count();
     if (isOpen) {
