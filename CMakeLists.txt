@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.14)
 project(TripleTriad)
 set(CMAKE_CXX_STANDARD 14)
+
 INCLUDE_DIRECTORIES(include)
-find_package(Threads)
 find_package(Curses REQUIRED)
 add_executable(TripleTriad
         main.cpp
