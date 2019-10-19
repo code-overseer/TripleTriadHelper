@@ -1,7 +1,3 @@
-//
-// Created by Bryan Wong on 2019-09-20.
-//
-
 #ifndef TRIPLETRIAD_GUI_H
 #define TRIPLETRIAD_GUI_H
 

@@ -21,7 +21,6 @@
 #include "cxxopts.hpp"
 
 namespace TripleTriad {
-    class Card;
     enum Element { Fire, Ice, Water, Earth, Holy, Poison, Thunder, Wind, None };
     enum Rule { Same, SameWall, Plus, Elemental };
     enum Team { Blue, Red };
