@@ -39,7 +39,7 @@ make
 | `-r --red`       | "card1,card2..."   | Supply CPU cards            | Yes      |
 | `-t --turn`      | `R` or `B`         | First turn                  | No       |
 
-If the CPU cards are not supplied, a Closed game will be started. If elemental rule is enable, the elements on the board need to be inputed as indicated on the table. The order goes from left to right followed by up to down in the 9x9 grid.
+If the CPU cards are not supplied, a Closed game will be started. If elemental rule is enable, the elements on the board need to be inputed as indicated on the table. The order goes from left to right followed by up to down in the 9x9 grid. The list of card names can be found in the Cards.csv file, I have removed commas from card names such as "Biggs, Wedge" and "Fujin, Raijin", there should be no changes to the names of other cards.
 
 ### Element Characters
 
@@ -58,8 +58,9 @@ If the CPU cards are not supplied, a Closed game will be started. If elemental r
 ### Example
 
 ```
-./TripleTriad -sw -e "NNNFNEANN" -r \
-"Iron Giant,Biggs Wedge,Blitz,Turtapod,Forbidden" \
+./TripleTriad -sw \
+-e "NNNFNEANN" \
+-r "Iron Giant,Biggs Wedge,Blitz,Turtapod,Forbidden" \
 -b "Edea,Quistis,Bahamut,Diablos,Leviathan" -t R
 ```
 
@@ -157,7 +158,7 @@ As the table indicates, the potentials are quite similar for all the moves shown
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/muramasa2402/TripleTriadHelper/blob/master/LICENSE) file for details
 
 ## Acknowledgments
 
