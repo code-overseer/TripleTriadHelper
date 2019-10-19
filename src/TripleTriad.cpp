@@ -84,7 +84,9 @@ void TripleTriad::open_game(cxxopts::ParseResult const &result) {
             continue;
         }
     }
+    GUI::endgame(game.score(Blue));
     endwin();
+
 }
 
 void TripleTriad::close_game(cxxopts::ParseResult const &result) {
@@ -136,56 +138,11 @@ void TripleTriad::close_game(cxxopts::ParseResult const &result) {
             continue;
         }
     }
+    GUI::endgame(game.score(Blue));
     endwin();
-
-
 }
 
-void TripleTriad::test_open(cxxopts::ParseResult const &result) {
-    std::vector<std::string> blue = player_cards(result["blue"].as<std::string>());
-    std::vector<std::string> red = player_cards(result["red"].as<std::string>());
-    if (blue.size() != 5 && blue.size() != red.size())
-        throw std::runtime_error("Not enough cards supplied, each team must have 5 cards");
-    std::unordered_map<Rule, bool> rules = {{Same, result["same"].as<bool>()},
-                                            {SameWall, result["wall"].as<bool>()},
-                                            {Plus, result["plus"].as<bool>()},
-                                            {Elemental, result["elemental"].count()}};
-    Team turn = toupper(result["turn"].as<char>()) == 'R' ? Red : Blue;
-    Board game(std::move(rules), rules.at(Elemental) ? result["elemental"].as<std::string>() : "", turn);
-    int plays = 0;
-    char input[64];
-    int card_no;
-    int pos;
-    while (plays < 9) {
-        std::cin >> input;
-        if (!strlen(input)) continue;
-        try {
-            if (game.turn() == Blue && !strcmp(input, "hint")) {
-                std::cout<<hint(game, blue, red)<<std::endl;
-                move(37, 0);
-            } else if (strlen(input) < 4) {
-                card_no = atoi(strtok(input, ":"));
-                pos = atoi(strtok(nullptr, ":"));
-                if (game.turn() == Red) {
-                    game.play(red[card_no], pos);
-                    red.erase(red.begin() + card_no);
-                } else {
-                    game.play(blue[card_no], pos);
-                    blue.erase(blue.begin() + card_no);
-                }
-                ++plays;
-            } else {
-                throw std::exception();
-            }
-        } catch (std::exception &e) {
-            std::cerr<<input<<" is invalid"<<std::endl;
-            continue;
-        }
-    }
-}
 void TripleTriad::test_open() {
-//    auto blue = player_cards("Edea,Quistis,Bahamut,Odin,Leviathan");
-//    auto red = player_cards("Squall,Blitz,Elastoid,GIM47N,Adamantoise");
     auto blue = player_cards("Edea,Doomtrain,Bahamut,Diablos,Leviathan");
     auto red = player_cards("Quistis,Turtapod,Blitz,Abyss Worm,Malboro");
     std::unordered_map<Rule, bool> rules = {{Same, true},
@@ -198,7 +155,6 @@ void TripleTriad::test_open() {
     game.play(red[0], 0);
     game.play(blue[2], 1);
     game.play(red[3], 4);
-//    std::cout << game.score(Red)<<':' << game.score(Blue) << std::endl;
     std::cout << hint(game, blue, red) << std::endl;
 }
 
@@ -243,25 +199,6 @@ std::string TripleTriad::hint(Board const &main, std::vector<std::string> const 
     }
 
     return out_stream.str();
-}
-
-void TripleTriad::test_hint() {
-//    std::vector<Card> blue = player_cards("Edea,Quistis,Bahamut,Odin,Leviathan", Blue);
-//    std::vector<Card> red = player_cards("Squall,Blitz,Elastoid,GIM47N,Adamantoise", Red);
-    auto blue = player_cards("Edea,Quistis,Bahamut,Diablos,Leviathan");
-    auto red = player_cards("Tri-Point,Wendigo,Gargantua,Bomb,Iron Giant");
-    std::unordered_map<Rule, bool> rules = {{Same, true},
-                                            {SameWall, true},
-                                            {Plus, false},
-                                            {Elemental, false}};
-
-    Board game(std::move(rules), "", Blue);
-//    game.play(blue[0], 6);
-//    blue.erase(blue.begin());
-//    game.play(red[0], 2);
-//    red.erase(red.begin());
-    std::cout << hint(game, blue, red) << std::endl;
-
 }
 
 

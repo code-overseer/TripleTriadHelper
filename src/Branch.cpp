@@ -10,13 +10,13 @@ float TripleTriad::Branch::alphabeta(const Node &node, int depth, float alpha, f
     auto blanks = node.blanks();
 
     auto cards = static_cast<int>(node.cards(node.turn()).size());
-    if (!depth || node.value < 0 || blanks.empty()) return node.value;
+    if (!depth || node.value < 2 || blanks.empty()) return node.value;
     if (node.turn() == Blue) {
         float value = -50;
         for (auto const &blank : blanks) {
             for (int i = 0; i < cards; ++i) {
                 if (node.used(node.turn(), i)) continue;
-                value = std::max(value, alphabeta(node.forward(i, blank->idx()), depth - 1, alpha, beta));
+                value = std::max(value, alphabeta(node.spawn(i, blank->idx()), depth - 1, alpha, beta));
                 alpha = std::max(alpha, value);
                 if (alpha >= beta) break;
             }
@@ -27,7 +27,7 @@ float TripleTriad::Branch::alphabeta(const Node &node, int depth, float alpha, f
     for (auto const &blank : blanks) {
         for (int i = 0; i < cards; ++i) {
             if (node.used(node.turn(), i)) continue;
-            value = std::min(value, alphabeta(node.forward(i, blank->idx()), depth - 1, alpha, beta));
+            value = std::min(value, alphabeta(node.spawn(i, blank->idx()), depth - 1, alpha, beta));
             beta = std::min(beta, value);
             if (alpha >= beta) break;
         }

@@ -28,6 +28,7 @@ namespace TripleTriad {
         void showHint(std::string const& hint);
         void draw(Board const &board, std::vector<std::string> const &blue, std::vector<std::string> const &red);
         void draw(Board const &board, std::vector<std::string> const &blue, int unknowns);
+        void endgame(int blue_score);
     };
 }
 

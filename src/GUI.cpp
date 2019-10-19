@@ -197,3 +197,22 @@ void TripleTriad::GUI::invalid_input(char const* input) {
     getch();
 }
 
+void TripleTriad::GUI::endgame(int blue_score) {
+    for (int i = 27; i < 36; ++i) {
+        move(i, 0);
+        clrtoeol();
+    }
+    char msg[80];
+    if (blue_score > 5) {
+        strcpy(msg, "Blue Wins! Press any key to exit.");
+    } else if (blue_score == 5) {
+        strcpy(msg, "DRAW! Press any key to exit.");
+    } else {
+        strcpy(msg, "Red Wins! Press any key to exit.");
+    }
+    mvaddnstr(27, 0, msg, 80);
+    move(37, 0);
+    clrtoeol();
+    getch();
+}
+

@@ -26,7 +26,7 @@ TripleTriad::Branch::Node &TripleTriad::Branch::Node::operator=(Node &&other) no
     return *this;
 }
 
-TripleTriad::Branch::Node TripleTriad::Branch::Node::forward(int card_idx, int blank) const {
+TripleTriad::Branch::Node TripleTriad::Branch::Node::spawn(int card_idx, int blank) const {
     auto output = *this;
     auto &stat = output.stats.at(board.turn());
     stat.isUsed[card_idx] = true;

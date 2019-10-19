@@ -11,9 +11,7 @@ namespace TripleTriad {
     void close_game(cxxopts::ParseResult const &result);
     std::string hint(Board const &main, std::vector<std::string> const &player,
                      std::vector<std::string> const &enemy);
-    void test_open(const cxxopts::ParseResult &result);
     void test_open();
-    void test_hint();
 }
 
 

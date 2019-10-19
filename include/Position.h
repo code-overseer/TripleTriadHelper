@@ -12,7 +12,6 @@ namespace TripleTriad {
             void construct( U* p, Args&&... args ) {
                 ::new((void *)p) U(std::forward<Args>(args)...);
             }
-
             template< class U > struct rebind { typedef PositionAllocator other; };
         };
         friend class PositionAllocator;
@@ -38,9 +37,7 @@ namespace TripleTriad {
         Position(Position const &other) = default;
         Position(Position &&other) noexcept = default;
         explicit Position(int i, Element e = None) : _index(i), _element(e) {}
-        inline void _flip() { _team = _team == Red ? Blue : Red; }
-        inline void _clear() { _empty = true; };
-        inline void _confirm() { _empty = false; };
+        inline void _flip() { _team = _team == Red ? Blue : Red; };;
         Position &operator=(Position &&other) noexcept = default;
         Position &operator=(Position const &other) = default;
         int const *_score = nullptr;

@@ -35,7 +35,7 @@ namespace TripleTriad {
         Node &operator=(Node &&other) noexcept;
         Node(int first_card, int pos, std::vector<std::string> const &player,
                 std::vector<std::string> const &enemy, Board main);
-        Node forward(int card_idx, int blank) const;
+        Node spawn(int card_idx, int blank) const;
         inline std::list<Position const*> blanks() const  { return board.getBlanks(); }
         inline bool terminated() const  { return blanks().empty(); }
         inline bool used(Team t, int i) const { return stats.at(t).isUsed[i]; }

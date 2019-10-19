@@ -21,8 +21,8 @@ namespace TripleTriad {
         Card(Card const &other) = default;
         static std::vector<Card, CardAllocator> _database;
         static std::unordered_map<std::string, Card const*> _map;
+        static std::vector<Card, CardAllocator> _data_initialize();
         static std::unordered_map<std::string, Card const*> _map_initialize();
-        static std::vector<Card,CardAllocator> _data_initialize();
     public:
         friend class CardAllocator;
         static Card const& getCard(std::string const &name);
