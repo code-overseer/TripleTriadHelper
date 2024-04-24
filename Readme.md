@@ -154,7 +154,7 @@ As the table indicates, the potentials are quite similar for all the moves shown
 
 ## Authors
 
-* **Bryan Wong** [muramasa2402](https://github.com/muramasa2402)
+* **Bryan Wong** [code-overseer](https://github.com/code-overseer)
 
 ## License
 
@@ -166,4 +166,4 @@ This project is licensed under the MIT License - see the [LICENSE.md](https://gi
 
 ## Future
 
-I'm figuring out how to make it solve faster ( Not copying the Board for each node would probably be a good start) and also how to run the solver for a Closed game.
+~~I'm figuring out how to make it solve faster ( Not copying the Board for each node would probably be a good start) and also how to run the solver for a Closed game.~~
